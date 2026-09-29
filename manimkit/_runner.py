@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import re
 import sys
 import traceback
@@ -589,5 +590,17 @@ def main(argv=None):
     return 0 if result["ok"] else 1
 
 
+def _exit_now(code: int):
+    """Exit without waiting for threads.
+
+    When a scene raises mid-``play``, manim's movie-writer thread (non-daemon)
+    never receives its stop signal, and a normal interpreter exit waits for it
+    forever — the parent would then sit until its timeout.
+    """
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(code)
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    _exit_now(main())

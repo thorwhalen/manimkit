@@ -199,3 +199,32 @@ def test_render_check_reports_layout_and_errors(tmp_path):
     assert not r.ok
     assert "NameError" in r.error
     assert any("undefined_name" in u for u in r.user_frames)
+
+
+@needs_manim
+def test_error_mid_play_does_not_hang(tmp_path):
+    """An exception inside a play must come back fast, not at the timeout.
+
+    manim's movie-writer thread is left waiting when a play raises; the runner
+    has to exit without joining it.
+    """
+    import time
+
+    from manimkit import render_check
+
+    f = tmp_path / "boom.py"
+    f.write_text(
+        SCENE.format(
+            body=(
+                "        d = Dot()\n"
+                "        self.add(d)\n"
+                "        d.add_updater(lambda m, dt: 1 / 0)\n"
+                "        self.play(d.animate.shift(RIGHT))"
+            )
+        )
+    )
+    start = time.monotonic()
+    r = render_check(f, out_dir=tmp_path / "out", timeout=90)
+    assert not r.ok
+    assert "ZeroDivisionError" in r.error
+    assert time.monotonic() - start < 60
