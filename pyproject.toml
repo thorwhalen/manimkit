@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "manimkit"
-version = "0.0.2"
+version = "0.0.3"
 description = "Agent kit for Manim: skills, a searchable corpus of working ManimCE scenes, and a render-and-inspect loop"
 readme = "README.md"
 requires-python = ">=3.10"
