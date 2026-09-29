@@ -75,6 +75,10 @@ manimkit lint scene.py                 # seconds; catches ManimGL / removed APIs
 manimkit render scene.py MyScene       # -ql render + frames + contact sheet + report
 ```
 
+Render through `manimkit render`, also when debugging a small repro: the bare
+`manim` CLI hangs forever, silently, when a scene raises during a `play` (manim's
+movie-writer thread never stops); `manimkit render` returns the error in seconds.
+
 The report gives: OK/FAILED, the **duration**, a **timeline** (every play/wait with
 start–end seconds), **layout warnings** (`cut-off` text at the frame edge,
 `overlap` text on text, `cramped` texts from different groups almost touching,

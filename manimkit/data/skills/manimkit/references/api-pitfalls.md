@@ -54,5 +54,6 @@
 
 - CLI: `manim -ql file.py Scene` (480p15), `-qm` 720p30, `-qh` 1080p60, `-qk` 4K; `-s` saves only the last frame as PNG; `--format gif`; `-a` renders all scenes. Output lands in `media/videos/<file>/<quality>/Scene.mp4`.
 - Never `-p` / `--preview` in an agent run — there is no display.
+- The bare `manim` CLI (observed with manim 0.20.1) never exits if the scene raises inside a `play`: its movie-writer thread waits forever. Use `manimkit render`, which exits as soon as the error is recorded.
 - A file with several Scene classes: always name the one to render.
 - Slow renders: lots of `always_redraw` with LaTeX inside (every frame re-compiles unless cached), huge `Surface` resolutions, very long `wait`s at high quality. Iterate at `-ql`.
