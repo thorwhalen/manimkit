@@ -13,7 +13,14 @@ from manimkit.requirements import requirements_report
 from manimkit.search import search_examples
 
 
-def search(query: str, *, k: int = 5, code: bool = False, no_latex: bool = False, origin: str = ""):
+def search(
+    query: str,
+    *,
+    k: int = 5,
+    code: bool = False,
+    no_latex: bool = False,
+    origin: str = "",
+):
     """Find corpus examples for QUERY (plain words: 'bar chart race', 'move dot along curve').
 
     --code prints each hit's full source; --no-latex skips examples that need LaTeX;
@@ -23,11 +30,17 @@ def search(query: str, *, k: int = 5, code: bool = False, no_latex: bool = False
         query, k, latex=False if no_latex else None, origin=origin or None
     )
     if not hits:
-        return "No match. Try other words (a Manim class name also works: 'ValueTracker')."
+        return (
+            "No match. Try other words (a Manim class name also works: 'ValueTracker')."
+        )
     out = [str(h) for h in hits]
     if code:
         for h in hits:
-            out += ["", f"# ===== {h.example.id} — scene {h.example.scene} =====", h.example.runnable_code]
+            out += [
+                "",
+                f"# ===== {h.example.id} — scene {h.example.scene} =====",
+                h.example.runnable_code,
+            ]
     else:
         out.append("\n(show one with: manimkit show <id>)")
     return "\n".join(out)
@@ -58,7 +71,16 @@ def lint(file: str):
     return "\n".join(str(i) for i in issues) if issues else "lint: clean"
 
 
-def render(file: str, scene: str = "", *, quality: str = "l", frames: int = 8, at: str = "", out_dir: str = "", no_latex: bool = False):
+def render(
+    file: str,
+    scene: str = "",
+    *,
+    quality: str = "l",
+    frames: int = 8,
+    at: str = "",
+    out_dir: str = "",
+    no_latex: bool = False,
+):
     """Render SCENE from FILE (low quality by default), sample frames into a contact sheet, report.
 
     --quality l|m|h|p|k (480p15, 720p30, 1080p60, 1440p60, 2160p60). --at 1.5,4 adds
@@ -68,8 +90,13 @@ def render(file: str, scene: str = "", *, quality: str = "l", frames: int = 8, a
     """
     times = tuple(float(x) for x in at.split(",") if x.strip())
     report = render_check(
-        file, scene or None, quality=quality, n_frames=frames, at=times,
-        out_dir=out_dir or None, no_latex=no_latex,
+        file,
+        scene or None,
+        quality=quality,
+        n_frames=frames,
+        at=times,
+        out_dir=out_dir or None,
+        no_latex=no_latex,
     )
     print(report)
     if not report.ok:

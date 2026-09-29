@@ -26,28 +26,80 @@ from pathlib import Path
 
 # (pattern, message). Order matters only for readability.
 RULES: list[tuple[str, str]] = [
-    (r"^\s*(from|import)\s+manimlib\b", "`manimlib` is ManimGL (3b1b). ManimCE is `from manim import *`."),
-    (r"\bShowCreation\b", "`ShowCreation` is ManimGL / pre-0.10 — ManimCE uses `Create(mob)`."),
-    (r"\bTextMobject\b", "`TextMobject` is gone — use `Text(...)` (plain) or `Tex(...)` (LaTeX text)."),
+    (
+        r"^\s*(from|import)\s+manimlib\b",
+        "`manimlib` is ManimGL (3b1b). ManimCE is `from manim import *`.",
+    ),
+    (
+        r"\bShowCreation\b",
+        "`ShowCreation` is ManimGL / pre-0.10 — ManimCE uses `Create(mob)`.",
+    ),
+    (
+        r"\bTextMobject\b",
+        "`TextMobject` is gone — use `Text(...)` (plain) or `Tex(...)` (LaTeX text).",
+    ),
     (r"\bTexMobject\b", "`TexMobject` is gone — use `MathTex(r'...')`."),
     (r"\bTexText\b", "`TexText` is ManimGL — use `Tex(...)` in ManimCE."),
-    (r"^\s*CONFIG\s*=\s*\{", "`CONFIG = {...}` class dicts are ManimGL/old style — pass keyword arguments to `__init__` / constructors."),
-    (r"\bGraphScene\b", "`GraphScene` was removed — use `Axes(...)` and `axes.plot(f)` in a plain `Scene`."),
-    (r"\.get_graph\(", "`get_graph` is the old GraphScene API — use `axes.plot(lambda x: ..., x_range=[a, b])`."),
-    (r"\bFadeInFrom(Down|Large|Point)?\b", "`FadeInFrom*` is gone — use `FadeIn(mob, shift=DOWN)` / `FadeIn(mob, scale=1.5)`."),
-    (r"\bFadeOutAndShift\w*\b", "`FadeOutAndShift` is gone — use `FadeOut(mob, shift=UP)`."),
-    (r"\bApplyMethod\b", "`ApplyMethod` is deprecated — use `mob.animate.method(...)`."),
-    (r"\bShowCreationThenDestruction\b", "Use `ShowPassingFlash(mob.copy())` or `Create` then `Uncreate` in ManimCE."),
-    (r"\bInteractiveScene\b|\bself\.embed\(\)", "`InteractiveScene` / `self.embed()` are ManimGL-only."),
-    (r"\bCode\(\s*code\s*=", "Since manim 0.19, `Code` takes `code_string=` (or `code_file=`), not `code=`."),
-    (r"\binsert_line_no\s*=", "`insert_line_no` was renamed `add_line_numbers` (manim 0.19)."),
-    (r"\bget_x_axis_label\(\s*['\"]", "Axis labels are LaTeX by default; pass `MathTex`/`Text` or a raw string: `axes.get_x_axis_label(Text('t'))`."),
-    (r"\b(MathTex|Tex)\(\s*(?![rR])[\"'][^\"'\n]*\\(?![\\n])[a-zA-Z]",
-     "LaTeX in a non-raw string: `\\f`, `\\t`, `\\b` ... become control characters. Use a raw string `r'...'`."),
-    (r"\bTex\(\s*r?[\"'][^\"'\n]*\\(frac|sqrt|sum|int|cdot|alpha|beta|theta|pi|lim|infty)\b(?![^\"'\n]*\$)",
-     "`Tex` is LaTeX *text* mode: math commands like `\\frac` need `MathTex(...)` (or `$...$` inside `Tex`)."),
-    (r"\bMathTex\(\s*r?[\"']\$", "`MathTex` is already in math mode — drop the `$...$`."),
-    (r"\.to_corner\(\s*\)", "`to_corner()` with no argument goes to DL (bottom-left); pass UL/UR/DL/DR explicitly."),
+    (
+        r"^\s*CONFIG\s*=\s*\{",
+        "`CONFIG = {...}` class dicts are ManimGL/old style — pass keyword arguments to `__init__` / constructors.",
+    ),
+    (
+        r"\bGraphScene\b",
+        "`GraphScene` was removed — use `Axes(...)` and `axes.plot(f)` in a plain `Scene`.",
+    ),
+    (
+        r"\.get_graph\(",
+        "`get_graph` is the old GraphScene API — use `axes.plot(lambda x: ..., x_range=[a, b])`.",
+    ),
+    (
+        r"\bFadeInFrom(Down|Large|Point)?\b",
+        "`FadeInFrom*` is gone — use `FadeIn(mob, shift=DOWN)` / `FadeIn(mob, scale=1.5)`.",
+    ),
+    (
+        r"\bFadeOutAndShift\w*\b",
+        "`FadeOutAndShift` is gone — use `FadeOut(mob, shift=UP)`.",
+    ),
+    (
+        r"\bApplyMethod\b",
+        "`ApplyMethod` is deprecated — use `mob.animate.method(...)`.",
+    ),
+    (
+        r"\bShowCreationThenDestruction\b",
+        "Use `ShowPassingFlash(mob.copy())` or `Create` then `Uncreate` in ManimCE.",
+    ),
+    (
+        r"\bInteractiveScene\b|\bself\.embed\(\)",
+        "`InteractiveScene` / `self.embed()` are ManimGL-only.",
+    ),
+    (
+        r"\bCode\(\s*code\s*=",
+        "Since manim 0.19, `Code` takes `code_string=` (or `code_file=`), not `code=`.",
+    ),
+    (
+        r"\binsert_line_no\s*=",
+        "`insert_line_no` was renamed `add_line_numbers` (manim 0.19).",
+    ),
+    (
+        r"\bget_x_axis_label\(\s*['\"]",
+        "Axis labels are LaTeX by default; pass `MathTex`/`Text` or a raw string: `axes.get_x_axis_label(Text('t'))`.",
+    ),
+    (
+        r"\b(MathTex|Tex)\(\s*(?![rR])[\"'][^\"'\n]*\\(?![\\n])[a-zA-Z]",
+        "LaTeX in a non-raw string: `\\f`, `\\t`, `\\b` ... become control characters. Use a raw string `r'...'`.",
+    ),
+    (
+        r"\bTex\(\s*r?[\"'][^\"'\n]*\\(frac|sqrt|sum|int|cdot|alpha|beta|theta|pi|lim|infty)\b(?![^\"'\n]*\$)",
+        "`Tex` is LaTeX *text* mode: math commands like `\\frac` need `MathTex(...)` (or `$...$` inside `Tex`).",
+    ),
+    (
+        r"\bMathTex\(\s*r?[\"']\$",
+        "`MathTex` is already in math mode — drop the `$...$`.",
+    ),
+    (
+        r"\.to_corner\(\s*\)",
+        "`to_corner()` with no argument goes to DL (bottom-left); pass UL/UR/DL/DR explicitly.",
+    ),
 ]
 
 TEXT_NAMES = frozenset({"Text", "MarkupText", "Paragraph"})
@@ -94,33 +146,70 @@ def lint_scene(path) -> list[LintIssue]:
 def _structure_issues(code: str, tree: ast.Module) -> list[LintIssue]:
     out = []
     uses_star = any(
-        isinstance(n, ast.ImportFrom) and n.module == "manim" and any(a.name == "*" for a in n.names)
+        isinstance(n, ast.ImportFrom)
+        and n.module == "manim"
+        and any(a.name == "*" for a in n.names)
         for n in tree.body
     )
     imports_manim = uses_star or any(
         isinstance(n, (ast.Import, ast.ImportFrom))
-        and ("manim" == getattr(n, "module", None) or any(a.name == "manim" for a in getattr(n, "names", [])))
+        and (
+            "manim" == getattr(n, "module", None)
+            or any(a.name == "manim" for a in getattr(n, "names", []))
+        )
         for n in ast.walk(tree)
     )
     if not imports_manim:
-        out.append(LintIssue(1, "No `from manim import *` — every ManimCE scene file needs it.", "structure"))
+        out.append(
+            LintIssue(
+                1,
+                "No `from manim import *` — every ManimCE scene file needs it.",
+                "structure",
+            )
+        )
     classes = [n for n in tree.body if isinstance(n, ast.ClassDef)]
     scenes = [c for c in classes if any("Scene" in ast.unparse(b) for b in c.bases)]
     if not scenes:
-        out.append(LintIssue(1, "No Scene subclass found (class X(Scene): def construct(self): ...).", "structure"))
+        out.append(
+            LintIssue(
+                1,
+                "No Scene subclass found (class X(Scene): def construct(self): ...).",
+                "structure",
+            )
+        )
     if (
         "LinearTransformationScene" in code
-        and re.search(r"\bapply_(matrix|transposed_matrix|nonlinear_transformation|function)\(", code)
+        and re.search(
+            r"\bapply_(matrix|transposed_matrix|nonlinear_transformation|function)\(",
+            code,
+        )
         and re.search(r"\b(Text|MarkupText|MathTex|Tex|Title)\(", code)
         and "add_foreground_mobject" not in code
     ):
-        out.append(LintIssue(1, "LinearTransformationScene: overlays (titles, labels) must be registered with "
-                                "self.add_foreground_mobject(m) before apply_matrix, or it transforms them too and "
-                                "fails with 'zip() argument 3 is longer than arguments 1-2'.", "structure"))
+        out.append(
+            LintIssue(
+                1,
+                "LinearTransformationScene: overlays (titles, labels) must be registered with "
+                "self.add_foreground_mobject(m) before apply_matrix, or it transforms them too and "
+                "fails with 'zip() argument 3 is longer than arguments 1-2'.",
+                "structure",
+            )
+        )
     for c in scenes:
-        if not any(isinstance(f, ast.FunctionDef) and f.name == "construct" for f in c.body):
-            if not any(isinstance(b, ast.Name) and b.id in {c2.name for c2 in scenes} for b in c.bases):
-                out.append(LintIssue(c.lineno, f"Scene `{c.name}` has no `construct(self)` method.", "structure"))
+        if not any(
+            isinstance(f, ast.FunctionDef) and f.name == "construct" for f in c.body
+        ):
+            if not any(
+                isinstance(b, ast.Name) and b.id in {c2.name for c2 in scenes}
+                for b in c.bases
+            ):
+                out.append(
+                    LintIssue(
+                        c.lineno,
+                        f"Scene `{c.name}` has no `construct(self)` method.",
+                        "structure",
+                    )
+                )
     return out
 
 
@@ -147,7 +236,12 @@ def _undefined_manim_names(tree: ast.Module) -> list[LintIssue]:
         if not (isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)):
             continue
         name = node.id
-        if name in seen or name in defined or name in manim_names or not name[:1].isupper():
+        if (
+            name in seen
+            or name in defined
+            or name in manim_names
+            or not name[:1].isupper()
+        ):
             continue
         seen.add(name)
         close = difflib.get_close_matches(name, manim_names, n=3, cutoff=0.6)

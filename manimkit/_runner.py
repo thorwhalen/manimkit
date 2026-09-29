@@ -56,7 +56,13 @@ class _Probe:
         self.m = m
         self.text_types = tuple(
             getattr(m, n)
-            for n in ("Text", "MarkupText", "SingleStringMathTex", "DecimalNumber", "Code")
+            for n in (
+                "Text",
+                "MarkupText",
+                "SingleStringMathTex",
+                "DecimalNumber",
+                "Code",
+            )
             if hasattr(m, n)
         )
         self.warnings: dict[tuple, dict] = {}
@@ -69,7 +75,10 @@ class _Probe:
             if isinstance(s, str) and s.strip():
                 s = " ".join(s.split())
                 return f"{type(mob).__name__}({s[:40]!r}{'…' if len(s) > 40 else ''})"
-        if hasattr(mob, "get_value") and type(mob).__name__ in {"DecimalNumber", "Integer"}:
+        if hasattr(mob, "get_value") and type(mob).__name__ in {
+            "DecimalNumber",
+            "Integer",
+        }:
             return f"{type(mob).__name__}({mob.get_value():g})"
         return type(mob).__name__
 
@@ -81,22 +90,40 @@ class _Probe:
             try:
                 if sm.get_fill_opacity() > MIN_VISIBLE_OPACITY:
                     return True
-                if sm.get_stroke_opacity() > MIN_VISIBLE_OPACITY and sm.get_stroke_width() > 0:
+                if (
+                    sm.get_stroke_opacity() > MIN_VISIBLE_OPACITY
+                    and sm.get_stroke_width() > 0
+                ):
                     return True
             except Exception:
                 return True  # images and the like: assume visible
         return False
 
     def _box(self, mob):
-        return (mob.get_left()[0], mob.get_right()[0], mob.get_bottom()[1], mob.get_top()[1])
+        return (
+            mob.get_left()[0],
+            mob.get_right()[0],
+            mob.get_bottom()[1],
+            mob.get_top()[1],
+        )
 
     def _frame(self, scene):
         frame = getattr(scene.camera, "frame", None)
         if frame is not None:
             c = frame.get_center()
-            return c[0] - frame.width / 2, c[0] + frame.width / 2, c[1] - frame.height / 2, c[1] + frame.height / 2
+            return (
+                c[0] - frame.width / 2,
+                c[0] + frame.width / 2,
+                c[1] - frame.height / 2,
+                c[1] + frame.height / 2,
+            )
         cfg = self.m.config
-        return -cfg.frame_width / 2, cfg.frame_width / 2, -cfg.frame_height / 2, cfg.frame_height / 2
+        return (
+            -cfg.frame_width / 2,
+            cfg.frame_width / 2,
+            -cfg.frame_height / 2,
+            cfg.frame_height / 2,
+        )
 
     def _text_units(self, mob):
         if isinstance(mob, self.text_types):
@@ -121,19 +148,49 @@ class _Probe:
         tol = EDGE_TOLERANCE
         texts, shapes = [], []  # shapes: (top, non-text bbox)
         zoomed = fw < m.config.frame_width * 0.98  # a zoomed camera crops on purpose
-        highlight_types = tuple(getattr(m, n) for n in ("SurroundingRectangle", "BackgroundRectangle", "Underline", "Cross", "Brace") if hasattr(m, n))
-        coord_types = tuple(getattr(m, n) for n in ("CoordinateSystem", "NumberLine") if hasattr(m, n))
+        highlight_types = tuple(
+            getattr(m, n)
+            for n in (
+                "SurroundingRectangle",
+                "BackgroundRectangle",
+                "Underline",
+                "Cross",
+                "Brace",
+            )
+            if hasattr(m, n)
+        )
+        coord_types = tuple(
+            getattr(m, n) for n in ("CoordinateSystem", "NumberLine") if hasattr(m, n)
+        )
         for top in scene.mobjects:
             if not self._visible(top):
                 continue
-            units = [u for u in self._text_units(top) if self._visible(u) and min(u.width, u.height) > MIN_TEXT_SIZE]
+            units = [
+                u
+                for u in self._text_units(top)
+                if self._visible(u) and min(u.width, u.height) > MIN_TEXT_SIZE
+            ]
             texts += [(u, top) for u in units]
             l, r, b, tp = self._box(top)
-            partly_out = (l < fl - tol or r > fr + tol or b < fb - tol or tp > ft + tol)
+            partly_out = l < fl - tol or r > fr + tol or b < fb - tol or tp > ft + tol
             fully_out = r < fl or l > fr or tp < fb or b > ft
-            if not units and not zoomed and partly_out and not fully_out and (r - l) < fw and (tp - b) < fh:
-                self._warn(t, "offscreen", self._label(top), f"{self._label(top)} is partly outside the frame ({self._edges(l, r, b, tp, fl, fr, fb, ft)}).")
-            if not isinstance(top, coord_types) and not isinstance(top, highlight_types):
+            if (
+                not units
+                and not zoomed
+                and partly_out
+                and not fully_out
+                and (r - l) < fw
+                and (tp - b) < fh
+            ):
+                self._warn(
+                    t,
+                    "offscreen",
+                    self._label(top),
+                    f"{self._label(top)} is partly outside the frame ({self._edges(l, r, b, tp, fl, fr, fb, ft)}).",
+                )
+            if not isinstance(top, coord_types) and not isinstance(
+                top, highlight_types
+            ):
                 segs = self._shape_segments(top, units)
                 if segs is not None:
                     shapes.append((top, segs))
@@ -147,7 +204,12 @@ class _Probe:
                 if other is top:
                     continue
                 if _segments_hit_box(segs, box):
-                    self._warn(t, "text-on-shape", (self._label(u), self._label(other)), f"{self._label(u)} is crossed by the outline of {self._label(other)} — move one (next_to/to_edge/shift), shrink the figure, or add_background_rectangle() to the text if the overlap is intended.")
+                    self._warn(
+                        t,
+                        "text-on-shape",
+                        (self._label(u), self._label(other)),
+                        f"{self._label(u)} is crossed by the outline of {self._label(other)} — move one (next_to/to_edge/shift), shrink the figure, or add_background_rectangle() to the text if the overlap is intended.",
+                    )
         tops = {id(u): top for u, top in texts}
         texts = [u for u, _ in texts]
         for u in texts:
@@ -157,7 +219,12 @@ class _Probe:
                 continue
             edges = self._edges(l, r, b, tp, fl, fr, fb, ft)
             if edges:
-                self._warn(t, "cut-off", self._label(u), f"{self._label(u)} is cut off at the frame edge ({edges}); scale it down or move it in.")
+                self._warn(
+                    t,
+                    "cut-off",
+                    self._label(u),
+                    f"{self._label(u)} is cut off at the frame edge ({edges}); scale it down or move it in.",
+                )
         for i in range(len(texts)):
             for j in range(i + 1, len(texts)):
                 a, c = texts[i], texts[j]
@@ -167,11 +234,21 @@ class _Probe:
                 la, lc = self._label(a), self._label(c)
                 frac = self._overlap(ba, bc)
                 if frac > OVERLAP_FRACTION:
-                    self._warn(t, "overlap", tuple(sorted([la, lc])), f"{la} overlaps {lc} ({frac:.0%} of the smaller one); use next_to/arrange with buff, or FadeOut the old one first.")
+                    self._warn(
+                        t,
+                        "overlap",
+                        tuple(sorted([la, lc])),
+                        f"{la} overlaps {lc} ({frac:.0%} of the smaller one); use next_to/arrange with buff, or FadeOut the old one first.",
+                    )
                 elif frac == 0 and tops[id(a)] is not tops[id(c)]:
                     gap = self._gap(ba, bc)
                     if gap is not None and gap < MIN_TEXT_GAP:
-                        self._warn(t, "cramped", tuple(sorted([la, lc])), f"{la} and {lc} are only {max(gap, 0):.2f} units apart (hint: buff >= {MIN_TEXT_GAP}); give them room unless they belong together.")
+                        self._warn(
+                            t,
+                            "cramped",
+                            tuple(sorted([la, lc])),
+                            f"{la} and {lc} are only {max(gap, 0):.2f} units apart (hint: buff >= {MIN_TEXT_GAP}); give them room unless they belong together.",
+                        )
 
     @staticmethod
     def _gap(a, c):
@@ -213,7 +290,10 @@ class _Probe:
             if id(x) in text_ids:
                 continue
             try:
-                stroked = x.get_stroke_width() > 0 and x.get_stroke_opacity() > MIN_VISIBLE_OPACITY
+                stroked = (
+                    x.get_stroke_width() > 0
+                    and x.get_stroke_opacity() > MIN_VISIBLE_OPACITY
+                )
                 solid = x.get_fill_opacity() >= SOLID_FILL_OPACITY
             except Exception:
                 continue  # images etc.
@@ -271,12 +351,24 @@ class _Probe:
 
         def record(scene, t0, what):
             try:
-                probe.timeline.append({"t0": round(t0, 2), "t1": round(scene.renderer.time, 2), "what": what})
+                probe.timeline.append(
+                    {
+                        "t0": round(t0, 2),
+                        "t1": round(scene.renderer.time, 2),
+                        "what": what,
+                    }
+                )
                 probe.check(scene)
                 if what != "wait":
                     probe.capture(scene)
             except Exception as e:  # the probe must never break a render
-                probe.timeline.append({"t0": round(t0, 2), "t1": round(t0, 2), "what": f"(probe error: {e})"})
+                probe.timeline.append(
+                    {
+                        "t0": round(t0, 2),
+                        "t1": round(t0, 2),
+                        "what": f"(probe error: {e})",
+                    }
+                )
 
         def play(scene, *args, **kwargs):
             t0 = scene.renderer.time
@@ -337,7 +429,9 @@ def _anim_name(a) -> str:
         if name == "_AnimationBuilder":
             methods = []
             for m in getattr(a, "methods", []) or []:
-                fn = getattr(m, "method", None) or (m[0] if isinstance(m, (tuple, list)) else None)
+                fn = getattr(m, "method", None) or (
+                    m[0] if isinstance(m, (tuple, list)) else None
+                )
                 methods.append(getattr(fn, "__name__", "?"))
             return f"{type(mob).__name__}.animate" + "".join(f".{n}" for n in methods)
         return f"{name}({type(mob).__name__})" if mob is not None else name
@@ -352,7 +446,12 @@ def _segments_hit_box(polylines, box) -> bool:
         return False
     for p in polylines:
         for (ax, ay), (bx, by) in zip(p[:-1], p[1:]):
-            if max(ax, bx) < x0 or min(ax, bx) > x1 or max(ay, by) < y0 or min(ay, by) > y1:
+            if (
+                max(ax, bx) < x0
+                or min(ax, bx) > x1
+                or max(ay, by) < y0
+                or min(ay, by) > y1
+            ):
                 continue
             if _clip(ax, ay, bx, by, x0, x1, y0, y1):
                 return True
@@ -386,20 +485,30 @@ def _clip(ax, ay, bx, by, x0, x1, y0, y1) -> bool:
 # (pattern on "Type: message", hint). Known manim failure signatures whose message
 # says nothing about the fix. Add one whenever an agent loses time on a new one.
 ERROR_HINTS = [
-    (r"zip\(\) argument \d+ is longer",
-     "In a LinearTransformationScene, apply_matrix/apply_function transform every mobject on screen: "
-     "register titles, labels and captions with self.add_foreground_mobject(m) (before showing them; "
-     "also every NEW caption you Transform into), and add moving vectors with self.add_vector."),
-    (r"operands could not be broadcast together|index 2 is out of bounds|shapes \(2,\)",
-     "Manim points are 3D: write [x, y, 0] (or axes.c2p(x, y) / plane.c2p(x, y)), not [x, y]."),
-    (r"NameError: name '([A-Z][A-Za-z_0-9]*)' is not defined",
-     "Not a ManimCE name (ManimGL or an old version?). Run `manimkit lint` for a suggestion, "
-     "or `manimkit search <what you meant>`."),
-    (r"has no attribute 'animate'",
-     "`.animate` works on mobjects only (not on lists or plain numbers); for a number use a ValueTracker."),
-    (r"latex error converting to dvi",
-     "Check: raw strings (r'...'), MathTex for math / Tex for text with $...$, no Unicode inside TeX. "
-     "The LaTeX log lines below name the bad command."),
+    (
+        r"zip\(\) argument \d+ is longer",
+        "In a LinearTransformationScene, apply_matrix/apply_function transform every mobject on screen: "
+        "register titles, labels and captions with self.add_foreground_mobject(m) (before showing them; "
+        "also every NEW caption you Transform into), and add moving vectors with self.add_vector.",
+    ),
+    (
+        r"operands could not be broadcast together|index 2 is out of bounds|shapes \(2,\)",
+        "Manim points are 3D: write [x, y, 0] (or axes.c2p(x, y) / plane.c2p(x, y)), not [x, y].",
+    ),
+    (
+        r"NameError: name '([A-Z][A-Za-z_0-9]*)' is not defined",
+        "Not a ManimCE name (ManimGL or an old version?). Run `manimkit lint` for a suggestion, "
+        "or `manimkit search <what you meant>`.",
+    ),
+    (
+        r"has no attribute 'animate'",
+        "`.animate` works on mobjects only (not on lists or plain numbers); for a number use a ValueTracker.",
+    ),
+    (
+        r"latex error converting to dvi",
+        "Check: raw strings (r'...'), MathTex for math / Tex for text with $...$, no Unicode inside TeX. "
+        "The LaTeX log lines below name the bad command.",
+    ),
 ]
 
 
@@ -424,7 +533,13 @@ def _concise_error(exc: BaseException, file: Path) -> dict:
     last = tb[-1] if tb else None
     where = f"{Path(last.filename).name}:{last.lineno} in {last.name}" if last else ""
     msg = f"{type(exc).__name__}: {exc}"
-    out = {"error": msg, "user_frames": lines, "raised_in": where, "kind": "python", "hint": _hint_for(msg)}
+    out = {
+        "error": msg,
+        "user_frames": lines,
+        "raised_in": where,
+        "kind": "python",
+        "hint": _hint_for(msg),
+    }
     if isinstance(exc, LatexBlockedError):
         out["kind"] = "latex-blocked"
     elif "latex" in str(exc).lower():
@@ -543,7 +658,12 @@ def _contact_sheet(frames: list[dict], path: Path) -> str | None:
 def run(args: dict) -> dict:
     file = Path(args["file"]).resolve()
     out_dir = Path(args["out_dir"]).resolve()
-    result = {"ok": False, "file": str(file), "scene": args.get("scene"), "source_hash": args.get("source_hash")}
+    result = {
+        "ok": False,
+        "file": str(file),
+        "scene": args.get("scene"),
+        "source_hash": args.get("source_hash"),
+    }
     probe = None
     try:
         import manim  # noqa: F401
@@ -578,8 +698,16 @@ def run(args: dict) -> dict:
             scene.render()
             fw = scene.renderer.file_writer
             duration = float(scene.renderer.time)
-            video = Path(fw.movie_file_path) if getattr(fw, "movie_file_path", None) else None
-            image = Path(fw.image_file_path) if getattr(fw, "image_file_path", None) else None
+            video = (
+                Path(fw.movie_file_path)
+                if getattr(fw, "movie_file_path", None)
+                else None
+            )
+            image = (
+                Path(fw.image_file_path)
+                if getattr(fw, "image_file_path", None)
+                else None
+            )
             result["pixel_size"] = [config.pixel_width, config.pixel_height]
             result["fps"] = config.frame_rate
         result["scene_time"] = round(duration, 2)
@@ -599,10 +727,14 @@ def run(args: dict) -> dict:
                 times = sorted(set(at + [max(video_duration - 1e-3, 0.0)]))
                 frames = chosen + _extract_frames(video, times, frames_dir)
             else:
-                frames = _extract_frames(video, _sample_times(video_duration, n, at), frames_dir)
+                frames = _extract_frames(
+                    video, _sample_times(video_duration, n, at), frames_dir
+                )
             frames.sort(key=lambda f: f["t"])
             result["frames"] = frames
-            result["contact_sheet"] = _contact_sheet(frames, out_dir / f"{args['scene']}_sheet.png")
+            result["contact_sheet"] = _contact_sheet(
+                frames, out_dir / f"{args['scene']}_sheet.png"
+            )
         elif image and image.exists():
             result["image"] = str(image)
             result["frames"] = [{"t": 0.0, "path": str(image)}]
@@ -612,7 +744,9 @@ def run(args: dict) -> dict:
         result.update(_concise_error(exc, file))
     if probe is not None:
         result["timeline"] = probe.timeline
-        result["layout_warnings"] = sorted(probe.warnings.values(), key=lambda w: w["t"])
+        result["layout_warnings"] = sorted(
+            probe.warnings.values(), key=lambda w: w["t"]
+        )
     return result
 
 

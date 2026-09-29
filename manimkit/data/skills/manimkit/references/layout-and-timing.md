@@ -21,7 +21,7 @@ MAX_W = config.frame_width - 1.0
 group = VGroup(...).arrange(DOWN)
 if group.width > MAX_W:
     group.scale_to_fit_width(MAX_W)
-if group.height > config.frame_height - 2.0:   # leave room for title + caption
+if group.height > config.frame_height - 2.0:  # leave room for title + caption
     group.scale_to_fit_height(config.frame_height - 2.0)
 ```
 

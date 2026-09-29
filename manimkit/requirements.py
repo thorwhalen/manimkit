@@ -50,7 +50,11 @@ class Requirement:
 
 
 def _platform() -> str:
-    return "win32" if sys.platform.startswith("win") else ("darwin" if sys.platform == "darwin" else "linux")
+    return (
+        "win32"
+        if sys.platform.startswith("win")
+        else ("darwin" if sys.platform == "darwin" else "linux")
+    )
 
 
 def check_requirements() -> list[Requirement]:
@@ -61,19 +65,31 @@ def check_requirements() -> list[Requirement]:
         from importlib.metadata import version
 
         v = version("manim")
-        out.append(Requirement("manim", True, f"manim {v} ({sys.executable})", needed_for="rendering"))
+        out.append(
+            Requirement(
+                "manim", True, f"manim {v} ({sys.executable})", needed_for="rendering"
+            )
+        )
     except Exception:
         out.append(
             Requirement(
-                "manim", False, f"not importable from {sys.executable}",
-                fix=f"{MANIM_FIX[plat]}   (see {DOCS})", needed_for="rendering",
+                "manim",
+                False,
+                f"not importable from {sys.executable}",
+                fix=f"{MANIM_FIX[plat]}   (see {DOCS})",
+                needed_for="rendering",
             )
         )
-    for tool, why in (("latex", "MathTex, Tex, numbered axes, DecimalNumber, BarChart labels"), ("dvisvgm", "the same (LaTeX -> SVG)")):
+    for tool, why in (
+        ("latex", "MathTex, Tex, numbered axes, DecimalNumber, BarChart labels"),
+        ("dvisvgm", "the same (LaTeX -> SVG)"),
+    ):
         path = shutil.which(tool)
         out.append(
             Requirement(
-                tool, bool(path), path or "not on PATH",
+                tool,
+                bool(path),
+                path or "not on PATH",
                 fix=f"{LATEX_FIX[plat]}   (or avoid LaTeX: use Text, `search_examples(..., latex=False)`)",
                 needed_for=why,
             )

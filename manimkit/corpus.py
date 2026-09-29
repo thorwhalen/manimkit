@@ -65,8 +65,10 @@ def uses_latex(code: str) -> bool:
             id(n.body[0].value)
             for n in ast.walk(tree)
             if isinstance(n, (ast.Module, ast.ClassDef, ast.FunctionDef))
-            and n.body and isinstance(n.body[0], ast.Expr)
-            and isinstance(n.body[0].value, ast.Constant) and isinstance(n.body[0].value.value, str)
+            and n.body
+            and isinstance(n.body[0], ast.Expr)
+            and isinstance(n.body[0].value, ast.Constant)
+            and isinstance(n.body[0].value.value, str)
         }
         lines = code.splitlines()
         for n in ast.walk(tree):
@@ -118,7 +120,9 @@ def examples_dir() -> Path:
     return Path(str(files("manimkit") / "data" / "examples"))
 
 
-def parse_example_file(path, *, origin: str = "curated", id_prefix: str = "") -> Example:
+def parse_example_file(
+    path, *, origin: str = "curated", id_prefix: str = ""
+) -> Example:
     """Parse one example file (header docstring + scene code) into an Example."""
     path = Path(path)
     code = path.read_text(encoding="utf-8")
@@ -128,11 +132,7 @@ def parse_example_file(path, *, origin: str = "curated", id_prefix: str = "") ->
     scene = meta.get("scene") or (scenes[-1] if scenes else "")
     tags = tuple(t.strip() for t in meta.get("tags", "").split(",") if t.strip())
     latex = meta.get("latex")
-    needs_latex = (
-        latex.lower() in {"yes", "true", "1"}
-        if latex
-        else uses_latex(code)
-    )
+    needs_latex = latex.lower() in {"yes", "true", "1"} if latex else uses_latex(code)
     return Example(
         id=f"{id_prefix}{path.stem}",
         title=title or path.stem.replace("_", " "),
@@ -177,9 +177,7 @@ def folder_examples(folder, *, origin: str = "user") -> Iterator[Example]:
     """Yield examples from any folder of scene files (header docstring optional)."""
     folder = Path(folder)
     for path in sorted(folder.rglob("*.py")):
-        yield parse_example_file(
-            path, origin=origin, id_prefix=f"{origin}/"
-        )
+        yield parse_example_file(path, origin=origin, id_prefix=f"{origin}/")
 
 
 # --------------------------------------------------------------------------- #
@@ -194,9 +192,7 @@ def scene_names(code: str) -> list[str]:
     ['A', 'B']
     """
     return [
-        name
-        for name, bases in SCENE_CLASS_PATTERN.findall(code)
-        if "Scene" in bases
+        name for name, bases in SCENE_CLASS_PATTERN.findall(code) if "Scene" in bases
     ]
 
 
@@ -256,7 +252,11 @@ def _preceding_paragraph(lines: list[str], i: int) -> str:
     while j >= 0 and not lines[j].strip():
         j -= 1
     para = []
-    while j >= 0 and lines[j].strip() and not lines[j].strip().startswith(("..", ":", "---", "===")):
+    while (
+        j >= 0
+        and lines[j].strip()
+        and not lines[j].strip().startswith(("..", ":", "---", "==="))
+    ):
         para.append(lines[j].strip())
         j -= 1
     text = " ".join(reversed(para))
@@ -306,7 +306,11 @@ def api_examples(root=None) -> tuple[Example, ...]:
         module = ".".join(path.relative_to(root.parent).with_suffix("").parts)
         for owner, doc in _docstrings(src):
             for d in parse_manim_directives(doc):
-                out.append(_api_example(d, owner=owner, module=module, doc=doc, version=version))
+                out.append(
+                    _api_example(
+                        d, owner=owner, module=module, doc=doc, version=version
+                    )
+                )
     return tuple(out)
 
 
@@ -332,11 +336,13 @@ def _docstrings(src: str) -> Iterator[tuple[str, str]]:
     yield from walk(tree, "")
 
 
-def _api_example(d: dict, *, owner: str, module: str, doc: str, version: str) -> Example:
-    summary = " ".join(doc.strip().split("\n\n")[0].split()) if doc.strip() else ""  # first paragraph
-    refs = " ".join(
-        v for k, v in d["options"].items() if k.startswith("ref_")
-    ).split()
+def _api_example(
+    d: dict, *, owner: str, module: str, doc: str, version: str
+) -> Example:
+    summary = (
+        " ".join(doc.strip().split("\n\n")[0].split()) if doc.strip() else ""
+    )  # first paragraph
+    refs = " ".join(v for k, v in d["options"].items() if k.startswith("ref_")).split()
     owner_leaf = owner.split(".")[-1] if owner else module.split(".")[-1]
     tags = tuple(
         dict.fromkeys(
@@ -394,7 +400,9 @@ def get_example(example_id: str, *, sources: Iterable = DFLT_SOURCES) -> Example
         if ex.id == example_id:
             return ex
     key = example_id.lower()
-    matches = [ex for ex in examples if ex.id.lower().endswith(key) or ex.scene.lower() == key]
+    matches = [
+        ex for ex in examples if ex.id.lower().endswith(key) or ex.scene.lower() == key
+    ]
     if len(matches) == 1:
         return matches[0]
     if matches:

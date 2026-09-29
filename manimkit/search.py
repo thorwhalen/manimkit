@@ -61,7 +61,11 @@ def _stem(word: str) -> str:
         word = word[:-3]
     elif len(word) > 4 and word.endswith("ed"):
         word = word[:-2]
-    elif len(word) > 3 and word.endswith("s") and not word.endswith(("ss", "us", "is", "ys", "axes")):
+    elif (
+        len(word) > 3
+        and word.endswith("s")
+        and not word.endswith(("ss", "us", "is", "ys", "axes"))
+    ):
         word = word[:-1]
     if len(word) > 4 and word[-1] == word[-2] and word[-1] not in "aeiousl":
         word = word[:-1]  # 'mapp(ing)' -> 'map'
@@ -80,7 +84,9 @@ def tokenize(text: str) -> list[str]:
     """
     out = []
     for raw in re.findall(r"[A-Za-z0-9_]+", text):
-        parts = [_stem(p.lower()) for piece in raw.split("_") for p in _WORD.findall(piece)]
+        parts = [
+            _stem(p.lower()) for piece in raw.split("_") for p in _WORD.findall(piece)
+        ]
         out.extend(p for p in parts if p not in STOPWORDS)
         whole = raw.lower()
         if (len(parts) > 1 or "_" in raw) and whole not in STOPWORDS:
@@ -120,7 +126,12 @@ def bm25_scores(query: Sequence[str], docs: Sequence[Sequence[str]]) -> list[flo
                 continue
             idf = math.log(1 + (n - df[t] + 0.5) / (df[t] + 0.5))
             f = tf[t]
-            s += idf * f * (BM25_K1 + 1) / (f + BM25_K1 * (1 - BM25_B + BM25_B * len(d) / avgdl))
+            s += (
+                idf
+                * f
+                * (BM25_K1 + 1)
+                / (f + BM25_K1 * (1 - BM25_B + BM25_B * len(d) / avgdl))
+            )
         scores.append(s)
     return scores
 
@@ -132,7 +143,9 @@ def search_examples(
     sources: Iterable = DFLT_SOURCES,
     origin: str | Sequence[str] | None = None,
     latex: bool | None = None,
-    scorer: Callable[[Sequence[str], Sequence[Sequence[str]]], list[float]] = bm25_scores,
+    scorer: Callable[
+        [Sequence[str], Sequence[Sequence[str]]], list[float]
+    ] = bm25_scores,
     origin_weights: dict | None = None,
 ) -> list[Hit]:
     """The ``k`` examples most relevant to ``query``, best first.

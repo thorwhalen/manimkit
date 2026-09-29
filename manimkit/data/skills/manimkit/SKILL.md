@@ -159,10 +159,19 @@ file to deliver; quote its duration. Do not pass `-p`
 ## Python API (same functions the CLI wraps)
 
 ```python
-from manimkit import search_examples, get_example, lint_scene, render_check, check_requirements
+from manimkit import (
+    search_examples,
+    get_example,
+    lint_scene,
+    render_check,
+    check_requirements,
+)
+
 hits = search_examples("pie chart with legend", k=3, latex=False)
 print(get_example(hits[0].example.id).runnable_code)
-report = render_check("scene.py", "MyScene", n_frames=6)   # report.ok, .contact_sheet, .layout_warnings
+report = render_check(
+    "scene.py", "MyScene", n_frames=6
+)  # report.ok, .contact_sheet, .layout_warnings
 print(report)
 ```
 
