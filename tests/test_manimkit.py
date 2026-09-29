@@ -101,7 +101,9 @@ def test_search_latex_filter():
 
 
 def test_search_scorer_seam():
-    hits = search_examples("anything", k=2, sources=["curated"], scorer=lambda q, docs: [1.0] * len(docs))
+    hits = search_examples(
+        "anything", k=2, sources=["curated"], scorer=lambda q, docs: [1.0] * len(docs)
+    )
     assert len(hits) == 2
 
 
@@ -126,7 +128,12 @@ def test_lint_rules(body, needle):
 
 
 def test_lint_clean_and_structure():
-    assert lint_code(SCENE.format(body="        self.play(Create(Circle()))"), check_names=False) == []
+    assert (
+        lint_code(
+            SCENE.format(body="        self.play(Create(Circle()))"), check_names=False
+        )
+        == []
+    )
     issues = lint_code("from manimlib import *\n", check_names=False)
     msgs = " ".join(i.message for i in issues)
     assert "ManimGL" in msgs and "No Scene subclass" in msgs
@@ -185,7 +192,9 @@ def test_render_check_reports_layout_and_errors(tmp_path):
     assert r.contact_sheet and r.frames
 
     bad = tmp_path / "broken.py"
-    bad.write_text(SCENE.format(body="        self.play(Create(Circle(radius=undefined_name)))"))
+    bad.write_text(
+        SCENE.format(body="        self.play(Create(Circle(radius=undefined_name)))")
+    )
     r = render_check(bad, out_dir=tmp_path / "out2")
     assert not r.ok
     assert "NameError" in r.error

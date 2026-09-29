@@ -137,6 +137,8 @@ class _Probe:
                 if segs is not None:
                     shapes.append((top, segs))
         for u, top in texts:
+            if self._backed(u, top):
+                continue  # the author put an opaque backing behind it: overlap is intended
             l, r, b, tp = self._box(u)
             d = TEXT_BOX_SHRINK * min(r - l, tp - b)
             box = (l + d, r - d, b + d, tp - d)
@@ -180,6 +182,25 @@ class _Probe:
         if y_overlap > 0:  # side by side
             return max(a[0], c[0]) - min(a[1], c[1])
         return None
+
+    def _backed(self, u, top) -> bool:
+        """Does the text sit on an opaque backing (add_background_rectangle or a filled box)?"""
+        if getattr(u, "background_rectangle", None) is not None:
+            return True
+        l, r, b, tp = self._box(u)
+        text_ids = {id(x) for x in u.get_family()}
+        for x in top.family_members_with_points():
+            if id(x) in text_ids:
+                continue
+            try:
+                solid = x.get_fill_opacity() >= SOLID_FILL_OPACITY
+            except Exception:
+                continue
+            if solid:
+                xl, xr, xb, xt = self._box(x)
+                if xl <= l and xr >= r and xb <= b and xt >= tp:
+                    return True
+        return False
 
     def _shape_segments(self, top, units):
         """Polyline segments of ``top``'s visible, stroked, non-text outline parts."""
@@ -487,7 +508,7 @@ def _contact_sheet(frames: list[dict], path: Path) -> str | None:
 def run(args: dict) -> dict:
     file = Path(args["file"]).resolve()
     out_dir = Path(args["out_dir"]).resolve()
-    result = {"ok": False, "file": str(file), "scene": args.get("scene")}
+    result = {"ok": False, "file": str(file), "scene": args.get("scene"), "source_hash": args.get("source_hash")}
     probe = None
     try:
         import manim  # noqa: F401

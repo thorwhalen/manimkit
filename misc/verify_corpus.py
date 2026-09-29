@@ -23,8 +23,12 @@ def verify(ex, out_dir: Path):
     f.write_text(ex.runnable_code, encoding="utf-8")
     r = render_check(f, ex.scene, out_dir=work / "render", n_frames=4)
     return {
-        "id": ex.id, "ok": r.ok, "duration": r.duration, "error": r.error,
-        "warnings": [w["message"] for w in r.layout_warnings], "lint": r.lint,
+        "id": ex.id,
+        "ok": r.ok,
+        "duration": r.duration,
+        "error": r.error,
+        "warnings": [w["message"] for w in r.layout_warnings],
+        "lint": r.lint,
         "sheet": r.contact_sheet,
     }
 
@@ -42,7 +46,9 @@ def main(argv=None):
     (out / "summary.json").write_text(json.dumps(results, indent=2))
     bad = 0
     for r in results:
-        flag = "ok  " if r["ok"] and not r["warnings"] else ("WARN" if r["ok"] else "FAIL")
+        flag = (
+            "ok  " if r["ok"] and not r["warnings"] else ("WARN" if r["ok"] else "FAIL")
+        )
         bad += flag != "ok  "
         print(f"{flag} {r['id']:45s} {r['duration'] or 0:6.2f}s  {r['error'] or ''}")
         for w in r["warnings"] + r["lint"]:

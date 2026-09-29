@@ -9,6 +9,7 @@ the error with the offending lines of *your* file, not forty frames of manim.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import subprocess
@@ -48,11 +49,14 @@ class RenderReport:
     raised_in: str | None = None
     latex_log: str | None = None
     stderr_tail: str | None = None
+    source_hash: str | None = None
+    unchanged: bool = False  # same source as the previous render of this file
 
     def __str__(self) -> str:
         lines = []
         head = "OK" if self.ok else "FAILED"
-        lines.append(f"{head}: {Path(self.file).name} :: {self.scene}")
+        src = f"  [source {self.source_hash}{', UNCHANGED since the last render' if self.unchanged else ''}]" if self.source_hash else ""
+        lines.append(f"{head}: {Path(self.file).name} :: {self.scene}{src}")
         if self.lint:
             lines.append("lint:")
             lines += [f"  - {i}" for i in self.lint]
@@ -163,9 +167,19 @@ def render_check(
         json.dump(args, f)
         args_path = f.name
     result_path = Path(args["result_path"])
+    source_hash = hashlib.sha1(file.read_bytes()).hexdigest()[:8]
+    previous_hash = None
     if result_path.exists():
+        try:
+            previous_hash = json.loads(result_path.read_text(encoding="utf-8")).get("source_hash")
+        except (ValueError, OSError):
+            pass
         result_path.unlink()
-    env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+    args["source_hash"] = source_hash
+    with open(args_path, "w", encoding="utf-8") as f:
+        json.dump(args, f)
+    # no __pycache__ next to the user's scene file
+    env = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1"}
     try:
         proc = subprocess.run(
             [python or sys.executable, "-m", "manimkit._runner", args_path],
@@ -205,6 +219,8 @@ def render_check(
         raised_in=r.get("raised_in"),
         latex_log=r.get("latex_log") or None,
         stderr_tail=None if r.get("ok") else _tail(stderr),
+        source_hash=source_hash,
+        unchanged=previous_hash == source_hash,
     )
 
 

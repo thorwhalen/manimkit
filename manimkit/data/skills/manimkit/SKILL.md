@@ -92,6 +92,9 @@ the final video frame and any `--at` times, each labelled with its time.
   contrast, invisible labels, a wrong diagram, or clutter. Go through the checklist
   below. Need to see a specific moment? `manimkit render scene.py MyScene --at 3.5,7`.
 - Fix every layout warning unless you can say why it is intended.
+- The header shows a hash of the scene file; `UNCHANGED since the last render` means
+  your edit did not land (a failed `sed -i` on macOS is the usual culprit — prefer
+  your file-edit tool).
 - A fix that "did nothing" (the tile looks the same as last time) usually means two
   animations on the same mobject in one `play` — only the last one runs. Compare
   with the previous sheet before trying something else.
@@ -148,7 +151,8 @@ file to deliver; quote its duration. Do not pass `-p`
   and another on its child) — only the last one runs, silently. Chain instead:
   `m.animate.set_fill(GREY).set_opacity(0.3)`, or animate the parts separately.
 - Continuous change = `ValueTracker` + `always_redraw(lambda: ...)` or `add_updater`,
-  animated with `tracker.animate.set_value(v)`.
+  animated with `tracker.animate.set_value(v)`. A label that follows a moving object:
+  `label.add_updater(lambda m: m.next_to(obj, UP, buff=0.1))`.
 - Duration = sum of `run_time`s (default 1 s each) + `wait`s (default 1 s). Set
   `run_time` explicitly; check the report's duration line.
 
