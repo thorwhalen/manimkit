@@ -71,4 +71,4 @@ Build figures from raw coordinates (e.g. `Polygon([0,0,0],[3,0,0],[0,4,0])`)? Gr
 - `MovingCameraScene` — `self.camera.frame.animate.set(width=4).move_to(target)` to zoom/pan; `frame.save_state()` + `Restore(frame)`.
 - `ThreeDScene` — `self.set_camera_orientation(phi=70 * DEGREES, theta=-45 * DEGREES)`, `ThreeDAxes`, `Surface`; 2D overlays via `self.add_fixed_in_frame_mobjects(title)`; `self.begin_ambient_camera_rotation(rate=0.2)`.
 - `ZoomedScene` — magnifier inset.
-- `LinearTransformationScene` — grids and `apply_matrix` for linear algebra.
+- `LinearTransformationScene` — grids and `apply_matrix` for linear algebra. It transforms everything on screen that is not foreground: register every title/label/caption with `self.add_foreground_mobject(m)` (see the `linear_transformation_eigenvectors` example). With many changing overlays, a plain `Scene` is simpler and robust: `self.play(ApplyMatrix(M, VGroup(plane, v1, v2)))`, with labels added separately.
