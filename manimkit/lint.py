@@ -108,6 +108,15 @@ def _structure_issues(code: str, tree: ast.Module) -> list[LintIssue]:
     scenes = [c for c in classes if any("Scene" in ast.unparse(b) for b in c.bases)]
     if not scenes:
         out.append(LintIssue(1, "No Scene subclass found (class X(Scene): def construct(self): ...).", "structure"))
+    if (
+        "LinearTransformationScene" in code
+        and re.search(r"\bapply_(matrix|transposed_matrix|nonlinear_transformation|function)\(", code)
+        and re.search(r"\b(Text|MarkupText|MathTex|Tex|Title)\(", code)
+        and "add_foreground_mobject" not in code
+    ):
+        out.append(LintIssue(1, "LinearTransformationScene: overlays (titles, labels) must be registered with "
+                                "self.add_foreground_mobject(m) before apply_matrix, or it transforms them too and "
+                                "fails with 'zip() argument 3 is longer than arguments 1-2'.", "structure"))
     for c in scenes:
         if not any(isinstance(f, ast.FunctionDef) and f.name == "construct" for f in c.body):
             if not any(isinstance(b, ast.Name) and b.id in {c2.name for c2 in scenes} for b in c.bases):

@@ -333,7 +333,7 @@ def _docstrings(src: str) -> Iterator[tuple[str, str]]:
 
 
 def _api_example(d: dict, *, owner: str, module: str, doc: str, version: str) -> Example:
-    summary = doc.strip().splitlines()[0].strip() if doc.strip() else ""
+    summary = " ".join(doc.strip().split("\n\n")[0].split()) if doc.strip() else ""  # first paragraph
     refs = " ".join(
         v for k, v in d["options"].items() if k.startswith("ref_")
     ).split()

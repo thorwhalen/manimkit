@@ -383,6 +383,40 @@ def _clip(ax, ay, bx, by, x0, x1, y0, y1) -> bool:
 # --------------------------------------------------------------------------- #
 
 
+# (pattern on "Type: message", hint). Known manim failure signatures whose message
+# says nothing about the fix. Add one whenever an agent loses time on a new one.
+ERROR_HINTS = [
+    (r"zip\(\) argument \d+ is longer",
+     "In a LinearTransformationScene, apply_matrix/apply_function transform every mobject on screen: "
+     "register titles, labels and captions with self.add_foreground_mobject(m) (before showing them; "
+     "also every NEW caption you Transform into), and add moving vectors with self.add_vector."),
+    (r"operands could not be broadcast together|index 2 is out of bounds|shapes \(2,\)",
+     "Manim points are 3D: write [x, y, 0] (or axes.c2p(x, y) / plane.c2p(x, y)), not [x, y]."),
+    (r"NameError: name '([A-Z][A-Za-z_0-9]*)' is not defined",
+     "Not a ManimCE name (ManimGL or an old version?). Run `manimkit lint` for a suggestion, "
+     "or `manimkit search <what you meant>`."),
+    (r"has no attribute 'animate'",
+     "`.animate` works on mobjects only (not on lists or plain numbers); for a number use a ValueTracker."),
+    (r"latex error converting to dvi",
+     "Check: raw strings (r'...'), MathTex for math / Tex for text with $...$, no Unicode inside TeX. "
+     "The LaTeX log lines below name the bad command."),
+]
+
+
+def _hint_for(message: str) -> str:
+    """The known fix for an error message, or ''.
+
+    >>> _hint_for("ValueError: operands could not be broadcast together with shapes (2,) (3,)")[:30]
+    'Manim points are 3D: write [x,'
+    >>> _hint_for("ValueError: something new")
+    ''
+    """
+    for pattern, hint in ERROR_HINTS:
+        if re.search(pattern, message):
+            return hint
+    return ""
+
+
 def _concise_error(exc: BaseException, file: Path) -> dict:
     tb = traceback.extract_tb(exc.__traceback__)
     user = [f for f in tb if Path(f.filename).resolve() == file.resolve()]
@@ -390,7 +424,7 @@ def _concise_error(exc: BaseException, file: Path) -> dict:
     last = tb[-1] if tb else None
     where = f"{Path(last.filename).name}:{last.lineno} in {last.name}" if last else ""
     msg = f"{type(exc).__name__}: {exc}"
-    out = {"error": msg, "user_frames": lines, "raised_in": where, "kind": "python"}
+    out = {"error": msg, "user_frames": lines, "raised_in": where, "kind": "python", "hint": _hint_for(msg)}
     if isinstance(exc, LatexBlockedError):
         out["kind"] = "latex-blocked"
     elif "latex" in str(exc).lower():

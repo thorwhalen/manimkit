@@ -48,6 +48,7 @@ class RenderReport:
     user_frames: list = field(default_factory=list)
     raised_in: str | None = None
     latex_log: str | None = None
+    hint: str | None = None
     stderr_tail: str | None = None
     source_hash: str | None = None
     unchanged: bool = False  # same source as the previous render of this file
@@ -84,6 +85,8 @@ class RenderReport:
                 lines += [f"  {u}" for u in self.user_frames]
             if self.raised_in:
                 lines.append(f"raised in: {self.raised_in}")
+            if self.hint:
+                lines.append(f"hint: {self.hint}")
             if self.latex_log:
                 lines.append("latex log:")
                 lines += [f"  {x}" for x in self.latex_log.splitlines()]
@@ -218,6 +221,7 @@ def render_check(
         user_frames=r.get("user_frames", []),
         raised_in=r.get("raised_in"),
         latex_log=r.get("latex_log") or None,
+        hint=r.get("hint") or None,
         stderr_tail=None if r.get("ok") else _tail(stderr),
         source_hash=source_hash,
         unchanged=previous_hash == source_hash,

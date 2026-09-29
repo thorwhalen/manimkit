@@ -47,6 +47,8 @@
 - `BarChart(values, bar_names=[...], y_range=[0, 10, 2])`; update with `chart.animate.change_bar_values(new)`. It uses LaTeX for labels. For full control or no LaTeX, build bars from `Rectangle`s (see the `bar_chart_story` example).
 - Axes: `axes.c2p(x, y)` (coordinates → point), `axes.p2c(point)`, `axes.plot(f, x_range=[a, b], color=...)`, `axes.get_area(graph, x_range=[a, b])`, `axes.get_riemann_rectangles(graph, dx=0.25)`, `axes.plot_line_graph(x_values, y_values)`, `axes.get_vertical_line(point)`.
 - `NumberPlane().apply_function(f)` / `LinearTransformationScene.apply_matrix(M)` for grid warps.
+- `LinearTransformationScene`: `apply_matrix` transforms everything on screen that is not registered as foreground. Register every title, label and caption with `self.add_foreground_mobject(m)` before showing it — including each *new* caption you later `Transform` into — or the transform fails with `ValueError: zip() argument 3 is longer than arguments 1-2`. Vectors that should move: `self.add_vector([x, y])`; extra shapes that should warp with the grid: `self.add_transformable_mobject(m)`. See the `linear_transformation_eigenvectors` example.
+- Points are 3D everywhere: `[x, y, 0]`, not `[x, y]` (a 2D list fails with "operands could not be broadcast together"). `axes.c2p(x, y)` returns a 3D point.
 
 ## Rendering
 
