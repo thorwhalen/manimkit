@@ -1,0 +1,18 @@
+# manimkit
+
+> Agent kit for Manim: skills, a searchable corpus of working ManimCE scenes, and a render-and-inspect loop
+
+
+## Pages in this subsection
+
+- [manimkit](manimkit.html.md): manimkit — make Manim (Community Edition) animations with an AI agent.
+- [manimkit.corpus](manimkit.corpus.html.md): The example corpus: working ManimCE scenes an agent can retrieve and adapt.
+- [manimkit.lint](manimkit.lint.html.md): Static checks for the mistakes LLMs make most when writing ManimCE code.
+- [manimkit.render](manimkit.render.html.md): Render a scene, look at it, and say concisely what went wrong.
+- [manimkit.requirements](manimkit.requirements.html.md): What rendering needs, whether you have it, and how to get what is missing.
+- [manimkit.search](manimkit.search.html.md): Retrieval over the example corpus.
+- [manimkit.tools](manimkit.tools.html.md): CLI-shaped wrappers: each returns the text an agent (or a human) reads.
+
+## Optional
+
+- [Top-level llms.txt](../llms.txt): Complete documentation index.

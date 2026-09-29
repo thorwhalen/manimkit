@@ -1,0 +1,26 @@
+# manimkit
+
+> Agent kit for Manim: skills, a searchable corpus of working ManimCE scenes, and a render-and-inspect loop
+
+
+## Pages
+
+- [manimkit](index.html.md): Make Manim (Community Edition) animations with an AI agent: an agent skill, a searchable corpus of w...
+- [API reference](api.html.md): | &#96;manimkit&#96;   | manimkit — make Manim (Community Edition) animations with an AI agent.   |
+- [manimkit](_autosummary/manimkit.html.md): manimkit — make Manim (Community Edition) animations with an AI agent.
+- [manimkit.corpus](_autosummary/manimkit.corpus.html.md): The example corpus: working ManimCE scenes an agent can retrieve and adapt.
+- [manimkit.lint](_autosummary/manimkit.lint.html.md): Static checks for the mistakes LLMs make most when writing ManimCE code.
+- [manimkit.render](_autosummary/manimkit.render.html.md): Render a scene, look at it, and say concisely what went wrong.
+- [manimkit.requirements](_autosummary/manimkit.requirements.html.md): What rendering needs, whether you have it, and how to get what is missing.
+- [manimkit.search](_autosummary/manimkit.search.html.md): Retrieval over the example corpus.
+- [manimkit.tools](_autosummary/manimkit.tools.html.md): CLI-shaped wrappers: each returns the text an agent (or a human) reads.
+- [For AI agents](ai-agents.html.md): &#96;manimkit&#96; ships artifacts for coding agents alongside its code. This page lists
+- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-09-29 18:42 UTC&#42;&#42; from commit &lt;a href="https://github.com/tho...
+
+## Optional
+
+- [manimkit.md](manimkit.md): Complete documentation in a single file.
+
+## Build
+
+- [build_info.json](build_info.json): build provenance (commit, version, tool versions, whether the docs match the package)

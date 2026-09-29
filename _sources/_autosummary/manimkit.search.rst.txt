@@ -1,0 +1,21 @@
+manimkit.search
+===============
+
+.. automodule:: manimkit.search
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      bm25_scores
+      example_tokens
+      search_examples
+      tokenize
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Hit
+   

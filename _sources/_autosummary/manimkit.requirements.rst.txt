@@ -1,0 +1,19 @@
+manimkit.requirements
+=====================
+
+.. automodule:: manimkit.requirements
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      check_requirements
+      requirements_report
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Requirement
+   

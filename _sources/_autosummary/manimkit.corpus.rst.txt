@@ -1,0 +1,28 @@
+manimkit.corpus
+===============
+
+.. automodule:: manimkit.corpus
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      api_examples
+      curated_examples
+      examples_dir
+      folder_examples
+      get_example
+      iter_examples
+      manim_version
+      parse_example_file
+      parse_manim_directives
+      scene_names
+      uses_latex
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Example
+   

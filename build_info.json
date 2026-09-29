@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "built_at": "2026-09-29T18:42:06Z",
+  "package": {
+    "name": "manimkit",
+    "version": "0.0.1",
+    "display_name": "manimkit",
+    "source": "pyproject.toml"
+  },
+  "git": {
+    "available": true,
+    "commit": "ac7eb2f36a56d24266af359862895b36e6eaba32",
+    "short_commit": "ac7eb2f",
+    "branch": "main",
+    "tags": [],
+    "dirty": false,
+    "remote_url": "https://github.com/thorwhalen/manimkit",
+    "commit_url": "https://github.com/thorwhalen/manimkit/commit/ac7eb2f36a56d24266af359862895b36e6eaba32",
+    "error": null
+  },
+  "ci": {
+    "provider": "github",
+    "repository": "thorwhalen/manimkit",
+    "sha": "ac7eb2f36a56d24266af359862895b36e6eaba32",
+    "sha_in_history": true,
+    "ref": "refs/heads/main",
+    "ref_name": "main",
+    "run_id": "36613752203",
+    "run_url": "https://github.com/thorwhalen/manimkit/actions/runs/36613752203",
+    "server_url": "https://github.com"
+  },
+  "tools": {
+    "epythet": "0.2.12",
+    "sphinx": "9.1.0",
+    "docutils": "0.22.4",
+    "python": "3.12.14"
+  },
+  "config": {
+    "theme": "auto",
+    "html_theme": "sphinxawesome_theme",
+    "accent": "#07599d",
+    "mode": "auto",
+    "api_generator": "autosummary",
+    "ignore": [
+      "tests/",
+      "scrap/",
+      "examples/"
+    ],
+    "agent_outputs": true,
+    "aggregates": [
+      "md"
+    ],
+    "ai_artifacts": true,
+    "provenance": true,
+    "docs_dir": "docsrc"
+  },
+  "site": {
+    "modules_documented": 7,
+    "objects_documented": 52
+  },
+  "pypi": {
+    "checked": true,
+    "latest": null,
+    "relation": "unknown",
+    "error": null
+  },
+  "reproduce": "git clone https://github.com/thorwhalen/manimkit && cd manimkit\ngit checkout ac7eb2f36a56d24266af359862895b36e6eaba32\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "warnings": [],
+  "alignment": {
+    "aligned": true,
+    "notes": []
+  }
+}

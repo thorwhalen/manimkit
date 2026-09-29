@@ -1,0 +1,18 @@
+manimkit.tools
+==============
+
+.. automodule:: manimkit.tools
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      check
+      lint
+      list_examples
+      render
+      search
+      show
+      skill_path
+   

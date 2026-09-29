@@ -1,0 +1,43 @@
+﻿manimkit
+========
+
+.. automodule:: manimkit
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      api_examples
+      check_requirements
+      curated_examples
+      get_example
+      iter_examples
+      lint_code
+      lint_scene
+      render_check
+      requirements_report
+      search_examples
+      skills_dir
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Example
+      Hit
+      LintIssue
+      RenderReport
+   
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   corpus
+   lint
+   render
+   requirements
+   search
+   tools

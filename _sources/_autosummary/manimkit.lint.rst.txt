@@ -1,0 +1,19 @@
+manimkit.lint
+=============
+
+.. automodule:: manimkit.lint
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      lint_code
+      lint_scene
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      LintIssue
+   
