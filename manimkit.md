@@ -1,4 +1,4 @@
-> built 2026-09-29 18:42 UTC from ac7eb2f (main) · manimkit 0.0.1. Details: build_info.json
+> built 2026-09-29 18:56 UTC from d118555 (main) · manimkit 0.0.2. Details: build_info.json
 
 # index.html.md
 
@@ -40,7 +40,7 @@ for hit in search_examples("move a dot along a curve", k=3, latex=False):
 print(get_example("flowchart_process").runnable_code)
 
 report = render_check("scene.py", "MyScene", quality="l", n_frames=6)
-print(report)                 # duration, timeline, layout warnings, contact sheet path
+print(report)  # duration, timeline, layout warnings, contact sheet path
 report.ok, report.contact_sheet, report.layout_warnings
 ```
 
@@ -744,7 +744,7 @@ Print the folder of the agent skills shipped with manimkit (to link into ~/.clau
 
 # About this build
 
-This documentation was built on **2026-09-29 18:42 UTC** from commit <a href="https://github.com/thorwhalen/manimkit/commit/ac7eb2f36a56d24266af359862895b36e6eaba32"><code>ac7eb2f</code></a> on branch <code>main</code>, for **manimkit 0.0.1** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-09-29 18:56 UTC** from commit <a href="https://github.com/thorwhalen/manimkit/commit/d118555ae38658e0a203e673ee8c342343c1ab94"><code>d118555</code></a> on branch <code>main</code>, for **manimkit 0.0.2** (from <code>pyproject.toml</code>).
 
 #### NOTE
 Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
@@ -753,7 +753,7 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/manimkit/commit/ac7eb2f36a56d24266af359862895b36e6eaba32"><code>ac7eb2f36a56d24266af359862895b36e6eaba32</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/manimkit/commit/d118555ae38658e0a203e673ee8c342343c1ab94"><code>d118555ae38658e0a203e673ee8c342343c1ab94</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
 | Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
@@ -764,9 +764,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/manimkit</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/manimkit/actions/runs/36613752203">36613752203</a>  |
+| Run          | <a href="https://github.com/thorwhalen/manimkit/actions/runs/36615392053">36615392053</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>ac7eb2f36a56d24266af359862895b36e6eaba32</code> (in the history of the built commit) |
+| Event commit | <code>d118555ae38658e0a203e673ee8c342343c1ab94</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -791,13 +791,13 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-<code>manimkit</code> is not on PyPI.
+Latest release: <a href="https://pypi.org/project/manimkit/0.0.2/">0.0.2</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/manimkit && cd manimkit
-git checkout ac7eb2f36a56d24266af359862895b36e6eaba32
+git checkout d118555ae38658e0a203e673ee8c342343c1ab94
 pip install "epythet==0.2.12"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

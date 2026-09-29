@@ -15,7 +15,7 @@
 - [manimkit.search](_autosummary/manimkit.search.html.md): Retrieval over the example corpus.
 - [manimkit.tools](_autosummary/manimkit.tools.html.md): CLI-shaped wrappers: each returns the text an agent (or a human) reads.
 - [For AI agents](ai-agents.html.md): &#96;manimkit&#96; ships artifacts for coding agents alongside its code. This page lists
-- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-09-29 18:42 UTC&#42;&#42; from commit &lt;a href="https://github.com/tho...
+- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-09-29 18:56 UTC&#42;&#42; from commit &lt;a href="https://github.com/tho...
 
 ## Optional
 

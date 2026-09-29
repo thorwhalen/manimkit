@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "built_at": "2026-09-29T18:42:06Z",
+  "built_at": "2026-09-29T18:56:40Z",
   "package": {
     "name": "manimkit",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "display_name": "manimkit",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "ac7eb2f36a56d24266af359862895b36e6eaba32",
-    "short_commit": "ac7eb2f",
+    "commit": "d118555ae38658e0a203e673ee8c342343c1ab94",
+    "short_commit": "d118555",
     "branch": "main",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/thorwhalen/manimkit",
-    "commit_url": "https://github.com/thorwhalen/manimkit/commit/ac7eb2f36a56d24266af359862895b36e6eaba32",
+    "commit_url": "https://github.com/thorwhalen/manimkit/commit/d118555ae38658e0a203e673ee8c342343c1ab94",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "thorwhalen/manimkit",
-    "sha": "ac7eb2f36a56d24266af359862895b36e6eaba32",
+    "sha": "d118555ae38658e0a203e673ee8c342343c1ab94",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "36613752203",
-    "run_url": "https://github.com/thorwhalen/manimkit/actions/runs/36613752203",
+    "run_id": "36615392053",
+    "run_url": "https://github.com/thorwhalen/manimkit/actions/runs/36615392053",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -60,11 +60,11 @@
   },
   "pypi": {
     "checked": true,
-    "latest": null,
-    "relation": "unknown",
+    "latest": "0.0.2",
+    "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/thorwhalen/manimkit && cd manimkit\ngit checkout ac7eb2f36a56d24266af359862895b36e6eaba32\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/thorwhalen/manimkit && cd manimkit\ngit checkout d118555ae38658e0a203e673ee8c342343c1ab94\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": true,
