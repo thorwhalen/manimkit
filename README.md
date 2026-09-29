@@ -34,7 +34,7 @@ for hit in search_examples("move a dot along a curve", k=3, latex=False):
 print(get_example("flowchart_process").runnable_code)
 
 report = render_check("scene.py", "MyScene", quality="l", n_frames=6)
-print(report)                 # duration, timeline, layout warnings, contact sheet path
+print(report)  # duration, timeline, layout warnings, contact sheet path
 report.ok, report.contact_sheet, report.layout_warnings
 ```
 
