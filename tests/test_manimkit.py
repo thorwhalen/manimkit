@@ -2,6 +2,7 @@
 
 import importlib.util
 import textwrap
+from pathlib import Path
 
 import pytest
 
@@ -228,3 +229,110 @@ def test_error_mid_play_does_not_hang(tmp_path):
     assert not r.ok
     assert "ZeroDivisionError" in r.error
     assert time.monotonic() - start < 60
+
+
+# --- read recording -------------------------------------------------------- #
+
+_RECORD = """
+import json, os, sys
+from pathlib import Path
+from manimkit.reads import ReadRecorder
+
+rec = ReadRecorder().install()
+import email.mime.text  # the standard library: code, not an input
+data = Path(os.environ["DATA_DIR"])
+float((data / "seconds.txt").read_text())          # a computed path
+(data / "missing.csv").exists() or None
+try:
+    open(data / "missing.csv").read()              # looked for, absent: still a read
+except OSError:
+    pass
+sorted(data.glob("*.txt"))                         # a listing is a read of the folder
+import sqlite3
+sqlite3.connect(str(data / "facts.db")).close()    # C code, announced by an audit event
+sys.path.insert(0, str(data / "lib"))
+import helper                                      # its .pyc is current: only IT is opened
+(Path(helper.__file__).parent / "table.csv").read_text()  # data beside a package
+(data / "helper.egg-info" / "PKG-INFO").read_text()  # distribution metadata: not data
+(data / "written.txt").write_text("x")             # a write is not a read
+(Path(os.environ["OUT_DIR"]) / "o.txt").write_text("x")
+open(Path(os.environ["OUT_DIR"]) / "o.txt").read()        # the excluded output folder
+print(json.dumps(rec.reads(exclude=[os.environ["OUT_DIR"]])))
+"""
+
+
+def test_reads_are_recorded_whatever_built_the_path(tmp_path):
+    """The reads a cache must key, and none of the installation's (an#291)."""
+    import json
+    import os
+    import subprocess
+    import sys
+
+    data, out = tmp_path / "data", tmp_path / "out"
+    data.mkdir()
+    out.mkdir()
+    (data / "seconds.txt").write_text("1.5")
+    (data / "wo.txt").write_text("")
+    lib = data / "lib"
+    (lib / "helper").mkdir(parents=True)
+    (lib / "helper" / "__init__.py").write_text("FACTOR = 2\n")
+    (lib / "helper" / "table.csv").write_text("1,2\n")
+    import py_compile
+
+    (data / "helper.egg-info").mkdir()
+    (data / "helper.egg-info" / "PKG-INFO").write_text("Name: helper\n")
+    py_compile.compile(str(lib / "helper" / "__init__.py"), doraise=True)  # imported once before
+    script = tmp_path / "rec.py"
+    script.write_text(_RECORD)
+    proc = subprocess.run(
+        [sys.executable, str(script)],
+        capture_output=True,
+        text=True,
+        env={**os.environ, "DATA_DIR": str(data), "OUT_DIR": str(out)},
+        check=True,
+    )
+    reads = {
+        (r["kind"], os.path.realpath(r["path"])) for r in json.loads(proc.stdout)
+    }
+    real = os.path.realpath
+    assert ("file", real(data / "seconds.txt")) in reads
+    assert ("file", real(data / "missing.csv")) in reads
+    assert ("dir", real(data)) in reads
+    assert ("file", real(data / "written.txt")) not in reads
+    assert ("file", real(data / "facts.db")) in reads
+    assert ("file", real(lib / "helper" / "__init__.py")) in reads  # the source, not the .pyc
+    assert ("file", real(lib / "helper" / "table.csv")) in reads
+    assert not any(p.endswith(".pyc") for _, p in reads)
+    assert not any("egg-info" in p for _, p in reads)
+    stats = {r["path"]: r["stat"] for r in json.loads(proc.stdout)}
+    assert stats[str(data / "seconds.txt")][1] == 3  # [mtime_ns, size] at the first read
+    assert not any(p.startswith(real(out)) for _, p in reads)
+    assert not any("email" in p.split(os.sep) for _, p in reads), reads
+
+
+@needs_manim
+def test_render_check_records_a_read_by_a_computed_path(tmp_path, monkeypatch):
+    from manimkit import render_check
+
+    data = tmp_path / "elsewhere"
+    data.mkdir()
+    (data / "seconds.txt").write_text("0.5")
+    monkeypatch.setenv("MANIMKIT_TEST_DATA", str(data))
+    f = tmp_path / "src" / "reads.py"
+    f.parent.mkdir()
+    f.write_text(
+        "import os\nfrom pathlib import Path\n"
+        + SCENE.format(
+            body=(
+                "        p = Path(os.environ['MANIMKIT_TEST_DATA']) / 'seconds.txt'\n"
+                "        self.play(FadeIn(Square()), run_time=float(p.read_text()))"
+            )
+        )
+    )
+    r = render_check(f, n_frames=1, out_dir=tmp_path / "out", record_reads=True)
+    assert r.ok, str(r)
+    paths = {(x["kind"], Path(x["path"]).resolve()) for x in r.reads}
+    assert ("file", (data / "seconds.txt").resolve()) in paths
+    assert not any("site-packages" in str(p) for _, p in paths), paths
+    assert not any(Path(p).is_relative_to((tmp_path / "out").resolve()) for _, p in paths)
+    assert render_check(f, n_frames=1, out_dir=tmp_path / "out2").reads is None
