@@ -8,6 +8,7 @@
 - [manimkit](manimkit.html.md): manimkit — make Manim (Community Edition) animations with an AI agent.
 - [manimkit.corpus](manimkit.corpus.html.md): The example corpus: working ManimCE scenes an agent can retrieve and adapt.
 - [manimkit.lint](manimkit.lint.html.md): Static checks for the mistakes LLMs make most when writing ManimCE code.
+- [manimkit.reads](manimkit.reads.html.md): What a render read: the files and folders a scene opens, recorded as it runs.
 - [manimkit.render](manimkit.render.html.md): Render a scene, look at it, and say concisely what went wrong.
 - [manimkit.requirements](manimkit.requirements.html.md): What rendering needs, whether you have it, and how to get what is missing.
 - [manimkit.search](manimkit.search.html.md): Retrieval over the example corpus.

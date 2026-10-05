@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "built_at": "2026-09-29T18:56:40Z",
+  "built_at": "2026-10-05T15:31:19Z",
   "package": {
     "name": "manimkit",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "display_name": "manimkit",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "d118555ae38658e0a203e673ee8c342343c1ab94",
-    "short_commit": "d118555",
+    "commit": "e00f329e06615bb75b6fd2a83f453b476d554140",
+    "short_commit": "e00f329",
     "branch": "main",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/thorwhalen/manimkit",
-    "commit_url": "https://github.com/thorwhalen/manimkit/commit/d118555ae38658e0a203e673ee8c342343c1ab94",
+    "commit_url": "https://github.com/thorwhalen/manimkit/commit/e00f329e06615bb75b6fd2a83f453b476d554140",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "thorwhalen/manimkit",
-    "sha": "d118555ae38658e0a203e673ee8c342343c1ab94",
+    "sha": "e00f329e06615bb75b6fd2a83f453b476d554140",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "36615392053",
-    "run_url": "https://github.com/thorwhalen/manimkit/actions/runs/36615392053",
+    "run_id": "37333226523",
+    "run_url": "https://github.com/thorwhalen/manimkit/actions/runs/37333226523",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -55,16 +55,16 @@
     "docs_dir": "docsrc"
   },
   "site": {
-    "modules_documented": 7,
-    "objects_documented": 52
+    "modules_documented": 8,
+    "objects_documented": 62
   },
   "pypi": {
     "checked": true,
-    "latest": "0.0.2",
+    "latest": "0.0.3",
     "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/thorwhalen/manimkit && cd manimkit\ngit checkout d118555ae38658e0a203e673ee8c342343c1ab94\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/thorwhalen/manimkit && cd manimkit\ngit checkout e00f329e06615bb75b6fd2a83f453b476d554140\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": true,

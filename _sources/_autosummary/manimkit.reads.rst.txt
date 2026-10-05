@@ -1,0 +1,28 @@
+manimkit.reads
+==============
+
+.. automodule:: manimkit.reads
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      LIST_EVENTS
+      C_READ_EVENTS
+      DEVICE_PREFIXES
+      METADATA_SUFFIXES
+      INSTALLATION_PATH_NAMES
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      installation_roots
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      ReadRecorder
+   

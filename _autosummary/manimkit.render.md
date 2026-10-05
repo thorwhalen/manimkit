@@ -19,13 +19,23 @@ the error with the offending lines of *your* file, not forty frames of manim.
 | [`RenderReport`](#manimkit.render.RenderReport)(ok, file[, scene, video, ...])   | What happened when a scene was rendered.   |
 |------------------------------------------------------------------------------------------------|--------------------------------------------|
 
-### *class* manimkit.render.RenderReport(ok, file, scene=None, video=None, image=None, contact_sheet=None, frames=<factory>, duration=None, scene_time=None, timeline=<factory>, layout_warnings=<factory>, lint=<factory>, error=None, error_kind=None, user_frames=<factory>, raised_in=None, latex_log=None, hint=None, stderr_tail=None, source_hash=None, unchanged=False)
+### *class* manimkit.render.RenderReport(ok, file, scene=None, video=None, image=None, contact_sheet=None, frames=<factory>, duration=None, scene_time=None, timeline=<factory>, layout_warnings=<factory>, lint=<factory>, error=None, error_kind=None, user_frames=<factory>, raised_in=None, latex_log=None, hint=None, stderr_tail=None, source_hash=None, unchanged=False, reads=None)
 
 Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
 
 What happened when a scene was rendered.
 
-### manimkit.render.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None)
+#### reads *: [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+
+every file the render opened for reading and
+every folder it listed, outside the Python installation and `out_dir`
+(`[{"path", "kind"}]`, `kind` `"file"` or `"dir"`); `None` when
+not recorded, or when the render died before reporting.
+
+* **Type:**
+  With `record_reads=True`
+
+### manimkit.render.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None, record_reads=False)
 
 Lint, render `scene` from `file`, sample frames, report.
 
@@ -41,6 +51,13 @@ Lint, render `scene` from `file`, sample frames, report.
   * **no_latex** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – fail on the first use of LaTeX, for scenes that must run on a
     machine without a TeX install (this one may well have it).
   * **python** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str) | [`None`](https://docs.python.org/3/builtins/constants.html#None)) – interpreter to render with (default: this one).
+  * **record_reads** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – 
+
+    record every file the render opens for reading and
+    every folder it lists — whatever built the path — in
+    [`RenderReport.reads`](#manimkit.render.RenderReport.reads) ([`manimkit.reads.ReadRecorder`](manimkit.reads.md#manimkit.reads.ReadRecorder)), so a
+    > caller that caches renders can key the files a scene reads by a
+    > computed path.
 * **Return type:**
   [`RenderReport`](#manimkit.render.RenderReport)
 

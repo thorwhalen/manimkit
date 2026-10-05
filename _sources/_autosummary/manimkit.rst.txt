@@ -37,6 +37,7 @@
 
    corpus
    lint
+   reads
    render
    requirements
    search

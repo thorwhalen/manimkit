@@ -74,11 +74,21 @@ Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
 
 One finding: where, what, and (usually) the fix.
 
-### *class* manimkit.RenderReport(ok, file, scene=None, video=None, image=None, contact_sheet=None, frames=<factory>, duration=None, scene_time=None, timeline=<factory>, layout_warnings=<factory>, lint=<factory>, error=None, error_kind=None, user_frames=<factory>, raised_in=None, latex_log=None, hint=None, stderr_tail=None, source_hash=None, unchanged=False)
+### *class* manimkit.RenderReport(ok, file, scene=None, video=None, image=None, contact_sheet=None, frames=<factory>, duration=None, scene_time=None, timeline=<factory>, layout_warnings=<factory>, lint=<factory>, error=None, error_kind=None, user_frames=<factory>, raised_in=None, latex_log=None, hint=None, stderr_tail=None, source_hash=None, unchanged=False, reads=None)
 
 Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
 
 What happened when a scene was rendered.
+
+#### reads *: [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+
+every file the render opened for reading and
+every folder it listed, outside the Python installation and `out_dir`
+(`[{"path", "kind"}]`, `kind` `"file"` or `"dir"`); `None` when
+not recorded, or when the render died before reporting.
+
+* **Type:**
+  With `record_reads=True`
 
 ### manimkit.api_examples(root=None)
 
@@ -132,7 +142,7 @@ Lint a scene file.
 * **Return type:**
   [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`LintIssue`](manimkit.lint.html.md#manimkit.lint.LintIssue)]
 
-### manimkit.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None)
+### manimkit.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None, record_reads=False)
 
 Lint, render `scene` from `file`, sample frames, report.
 
@@ -148,6 +158,13 @@ Lint, render `scene` from `file`, sample frames, report.
   * **no_latex** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – fail on the first use of LaTeX, for scenes that must run on a
     machine without a TeX install (this one may well have it).
   * **python** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str) | [`None`](https://docs.python.org/3/builtins/constants.html#None)) – interpreter to render with (default: this one).
+  * **record_reads** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – 
+
+    record every file the render opens for reading and
+    every folder it lists — whatever built the path — in
+    [`RenderReport.reads`](#manimkit.RenderReport.reads) ([`manimkit.reads.ReadRecorder`](manimkit.reads.html.md#manimkit.reads.ReadRecorder)), so a
+    > caller that caches renders can key the files a scene reads by a
+    > computed path.
 * **Return type:**
   [`RenderReport`](manimkit.render.html.md#manimkit.render.RenderReport)
 
@@ -182,6 +199,7 @@ The folder holding the agent skills this package ships.
 | [`corpus`](manimkit.corpus.html.md#module-manimkit.corpus)             | The example corpus: working ManimCE scenes an agent can retrieve and adapt.   |
 |--------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
 | [`lint`](manimkit.lint.html.md#module-manimkit.lint)                 | Static checks for the mistakes LLMs make most when writing ManimCE code.      |
+| [`reads`](manimkit.reads.html.md#module-manimkit.reads)               | What a render read: the files and folders a scene opens, recorded as it runs. |
 | [`render`](manimkit.render.html.md#module-manimkit.render)             | Render a scene, look at it, and say concisely what went wrong.                |
 | [`requirements`](manimkit.requirements.html.md#module-manimkit.requirements) | What rendering needs, whether you have it, and how to get what is missing.    |
 | [`search`](manimkit.search.html.md#module-manimkit.search)             | Retrieval over the example corpus.                                            |

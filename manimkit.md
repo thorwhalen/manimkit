@@ -1,4 +1,4 @@
-> built 2026-09-29 18:56 UTC from d118555 (main) · manimkit 0.0.2. Details: build_info.json
+> built 2026-10-05 15:31 UTC from e00f329 (main) · manimkit 0.0.3. Details: build_info.json
 
 # index.html.md
 
@@ -329,11 +329,21 @@ Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
 
 One finding: where, what, and (usually) the fix.
 
-### *class* manimkit.RenderReport(ok, file, scene=None, video=None, image=None, contact_sheet=None, frames=<factory>, duration=None, scene_time=None, timeline=<factory>, layout_warnings=<factory>, lint=<factory>, error=None, error_kind=None, user_frames=<factory>, raised_in=None, latex_log=None, hint=None, stderr_tail=None, source_hash=None, unchanged=False)
+### *class* manimkit.RenderReport(ok, file, scene=None, video=None, image=None, contact_sheet=None, frames=<factory>, duration=None, scene_time=None, timeline=<factory>, layout_warnings=<factory>, lint=<factory>, error=None, error_kind=None, user_frames=<factory>, raised_in=None, latex_log=None, hint=None, stderr_tail=None, source_hash=None, unchanged=False, reads=None)
 
 Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
 
 What happened when a scene was rendered.
+
+#### reads *: [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+
+every file the render opened for reading and
+every folder it listed, outside the Python installation and `out_dir`
+(`[{"path", "kind"}]`, `kind` `"file"` or `"dir"`); `None` when
+not recorded, or when the render died before reporting.
+
+* **Type:**
+  With `record_reads=True`
 
 ### manimkit.api_examples(root=None)
 
@@ -387,7 +397,7 @@ Lint a scene file.
 * **Return type:**
   [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`LintIssue`](_autosummary/manimkit.lint.html.md#manimkit.lint.LintIssue)]
 
-### manimkit.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None)
+### manimkit.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None, record_reads=False)
 
 Lint, render `scene` from `file`, sample frames, report.
 
@@ -403,6 +413,13 @@ Lint, render `scene` from `file`, sample frames, report.
   * **no_latex** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – fail on the first use of LaTeX, for scenes that must run on a
     machine without a TeX install (this one may well have it).
   * **python** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str) | [`None`](https://docs.python.org/3/builtins/constants.html#None)) – interpreter to render with (default: this one).
+  * **record_reads** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – 
+
+    record every file the render opens for reading and
+    every folder it lists — whatever built the path — in
+    [`RenderReport.reads`](_autosummary/manimkit.html.md#manimkit.RenderReport.reads) ([`manimkit.reads.ReadRecorder`](_autosummary/manimkit.reads.html.md#manimkit.reads.ReadRecorder)), so a
+    > caller that caches renders can key the files a scene reads by a
+    > computed path.
 * **Return type:**
   [`RenderReport`](_autosummary/manimkit.render.html.md#manimkit.render.RenderReport)
 
@@ -437,6 +454,7 @@ The folder holding the agent skills this package ships.
 | [`corpus`](_autosummary/manimkit.corpus.html.md#module-manimkit.corpus)             | The example corpus: working ManimCE scenes an agent can retrieve and adapt.   |
 |--------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
 | [`lint`](_autosummary/manimkit.lint.html.md#module-manimkit.lint)                 | Static checks for the mistakes LLMs make most when writing ManimCE code.      |
+| [`reads`](_autosummary/manimkit.reads.html.md#module-manimkit.reads)               | What a render read: the files and folders a scene opens, recorded as it runs. |
 | [`render`](_autosummary/manimkit.render.html.md#module-manimkit.render)             | Render a scene, look at it, and say concisely what went wrong.                |
 | [`requirements`](_autosummary/manimkit.requirements.html.md#module-manimkit.requirements) | What rendering needs, whether you have it, and how to get what is missing.    |
 | [`search`](_autosummary/manimkit.search.html.md#module-manimkit.search)             | Retrieval over the example corpus.                                            |
@@ -497,6 +515,122 @@ Lint a scene file.
   [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`LintIssue`](_autosummary/manimkit.lint.html.md#manimkit.lint.LintIssue)]
 
 
+# _autosummary/manimkit.reads.html.md
+
+# manimkit.reads
+
+What a render read: the files and folders a scene opens, recorded as it runs.
+
+A scene can read anything: `ImageMobject(Path.home() / "logo.png")`, a CSV
+named by an environment variable, a path built in a helper. No static reading
+of the file finds those, so a caller that caches renders (`an`’s shot cache,
+an#291) cannot tell when one changes. [`ReadRecorder`](_autosummary/manimkit.reads.html.md#manimkit.reads.ReadRecorder) asks the interpreter
+instead: a [`sys.addaudithook()`](https://docs.python.org/3/library/sys.html#sys.addaudithook) hook sees every `open` the render makes
+for reading, every SQLite database it connects to, and every folder it lists
+(`os.listdir`, `os.scandir`, so a `glob` over a folder is a read of that
+folder), whatever built the path.
+
+What it reports is what the SCENE depends on. Left out: the files of the Python
+installation (the standard library and site-packages, system and user — what a
+caller keys by version), package metadata (`*.dist-info`, `*.egg-info`),
+the path hooks an import touches, the listing of a folder on `sys.path` (the
+import system looking for a module) and device files; a caller passes the
+folders it writes to (the render’s output) as `exclude`. Code imported from
+anywhere else — an editable install, a folder put on `sys.path` — is
+recorded, as its SOURCE file even when Python loaded only its cached bytecode:
+it can change without any version moving. A path that does not exist is still
+a read (the scene looked for it), so a caller can key its absence.
+
+Each read carries the `stat` its file or folder had when it was FIRST read
+(`[mtime_ns, size]`, `None` when absent), so a caller that digests the files
+after the render can tell one edited while the render ran.
+
+Not seen: reads made by C code without Python’s `open` (fonts opened by Pango,
+TeX’s own inputs such as an `\input` in a preamble, OpenCV, ffmpeg), reads in
+a subprocess, and an existence test (`Path.exists`) that opens nothing.
+
+```pycon
+>>> rec = ReadRecorder()
+>>> rec._hook("open", ("/data/x.csv", "r", 0))
+>>> rec._hook("open", ("/data/out.txt", "w", 0o1))
+>>> rec._hook("os.listdir", ("/data",))
+>>> [(r["kind"], Path(r["path"]).name) for r in rec.reads(installation=False)]
+[('dir', 'data'), ('file', 'x.csv')]
+```
+
+### Module Attributes
+
+| [`LIST_EVENTS`](_autosummary/manimkit.reads.html.md#manimkit.reads.LIST_EVENTS)             | Audit events that LIST a folder (the argument is the folder, or `None`/fd).                                                                                                                                                                                                               |
+|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`C_READ_EVENTS`](_autosummary/manimkit.reads.html.md#manimkit.reads.C_READ_EVENTS)           | Audit events that read a file named by their first argument, opened by C code.                                                                                                                                                                                                            |
+| [`DEVICE_PREFIXES`](_autosummary/manimkit.reads.html.md#manimkit.reads.DEVICE_PREFIXES)         | Path prefixes that are devices or kernel views, never data a scene depends on.                                                                                                                                                                                                            |
+| [`METADATA_SUFFIXES`](_autosummary/manimkit.reads.html.md#manimkit.reads.METADATA_SUFFIXES)       | Folder suffixes that hold an installed distribution's metadata.                                                                                                                                                                                                                           |
+| [`INSTALLATION_PATH_NAMES`](_autosummary/manimkit.reads.html.md#manimkit.reads.INSTALLATION_PATH_NAMES) | The [`sysconfig.get_paths()`](https://docs.python.org/3/library/sysconfig.html#sysconfig.get_paths) entries that hold the installation's code (not `data`/`scripts`, which are the bare prefix on a system Python, so excluding them would drop every read under `/usr` or `/usr/local`). |
+
+### Functions
+
+| [`installation_roots`](_autosummary/manimkit.reads.html.md#manimkit.reads.installation_roots)()   | The folders of this Python installation's code: the standard library and site-packages (system and user).   |
+|-------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
+
+### Classes
+
+| [`ReadRecorder`](_autosummary/manimkit.reads.html.md#manimkit.reads.ReadRecorder)()   | Records the files a process opens for reading and the folders it lists.   |
+|-------------------------------------------------------------------|---------------------------------------------------------------------------|
+
+### manimkit.reads.C_READ_EVENTS *: [frozenset](https://docs.python.org/3/builtins/stdtypes.html#frozenset)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= frozenset({'sqlite3.connect'})*
+
+Audit events that read a file named by their first argument, opened by C code.
+
+### manimkit.reads.DEVICE_PREFIXES *: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...]* *= ('/dev/', '/proc/', '/sys/')*
+
+Path prefixes that are devices or kernel views, never data a scene depends on.
+
+### manimkit.reads.INSTALLATION_PATH_NAMES *: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...]* *= ('stdlib', 'platstdlib', 'purelib', 'platlib')*
+
+The [`sysconfig.get_paths()`](https://docs.python.org/3/library/sysconfig.html#sysconfig.get_paths) entries that hold the installation’s code
+(not `data`/`scripts`, which are the bare prefix on a system Python, so
+excluding them would drop every read under `/usr` or `/usr/local`).
+
+### manimkit.reads.LIST_EVENTS *: [frozenset](https://docs.python.org/3/builtins/stdtypes.html#frozenset)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= frozenset({'os.listdir', 'os.scandir'})*
+
+Audit events that LIST a folder (the argument is the folder, or `None`/fd).
+
+### manimkit.reads.METADATA_SUFFIXES *: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...]* *= ('.dist-info', '.egg-info')*
+
+Folder suffixes that hold an installed distribution’s metadata.
+
+### *class* manimkit.reads.ReadRecorder
+
+Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
+
+Records the files a process opens for reading and the folders it lists.
+
+`install()` adds the audit hook (for good: an audit hook cannot be
+removed, so install it in a process that exists to render, as the runner
+does). [`reads()`](_autosummary/manimkit.reads.html.md#manimkit.reads.ReadRecorder.reads) reports them, sorted, as `{"path", "kind", "stat"}`
+dicts.
+
+#### reads(, exclude=(), installation=True)
+
+What was read, minus the folders in `exclude` and (by default) the
+Python installation ([`installation_roots()`](_autosummary/manimkit.reads.html.md#manimkit.reads.installation_roots)), import artefacts and
+device files. Stops recording: what the report itself reads is not the
+scene’s.
+
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)]
+
+### manimkit.reads.installation_roots()
+
+The folders of this Python installation’s code: the standard library and
+site-packages (system and user). What a caller keys by version. An editable
+install’s folder is NOT one of them: its files can change without any
+version moving, so reads of them are reported.
+
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
+
+
 # _autosummary/manimkit.render.html.md
 
 # manimkit.render
@@ -520,13 +654,23 @@ the error with the offending lines of *your* file, not forty frames of manim.
 | [`RenderReport`](_autosummary/manimkit.render.html.md#manimkit.render.RenderReport)(ok, file[, scene, video, ...])   | What happened when a scene was rendered.   |
 |------------------------------------------------------------------------------------------------|--------------------------------------------|
 
-### *class* manimkit.render.RenderReport(ok, file, scene=None, video=None, image=None, contact_sheet=None, frames=<factory>, duration=None, scene_time=None, timeline=<factory>, layout_warnings=<factory>, lint=<factory>, error=None, error_kind=None, user_frames=<factory>, raised_in=None, latex_log=None, hint=None, stderr_tail=None, source_hash=None, unchanged=False)
+### *class* manimkit.render.RenderReport(ok, file, scene=None, video=None, image=None, contact_sheet=None, frames=<factory>, duration=None, scene_time=None, timeline=<factory>, layout_warnings=<factory>, lint=<factory>, error=None, error_kind=None, user_frames=<factory>, raised_in=None, latex_log=None, hint=None, stderr_tail=None, source_hash=None, unchanged=False, reads=None)
 
 Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
 
 What happened when a scene was rendered.
 
-### manimkit.render.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None)
+#### reads *: [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+
+every file the render opened for reading and
+every folder it listed, outside the Python installation and `out_dir`
+(`[{"path", "kind"}]`, `kind` `"file"` or `"dir"`); `None` when
+not recorded, or when the render died before reporting.
+
+* **Type:**
+  With `record_reads=True`
+
+### manimkit.render.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None, record_reads=False)
 
 Lint, render `scene` from `file`, sample frames, report.
 
@@ -542,6 +686,13 @@ Lint, render `scene` from `file`, sample frames, report.
   * **no_latex** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – fail on the first use of LaTeX, for scenes that must run on a
     machine without a TeX install (this one may well have it).
   * **python** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str) | [`None`](https://docs.python.org/3/builtins/constants.html#None)) – interpreter to render with (default: this one).
+  * **record_reads** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – 
+
+    record every file the render opens for reading and
+    every folder it lists — whatever built the path — in
+    [`RenderReport.reads`](_autosummary/manimkit.render.html.md#manimkit.render.RenderReport.reads) ([`manimkit.reads.ReadRecorder`](_autosummary/manimkit.reads.html.md#manimkit.reads.ReadRecorder)), so a
+    > caller that caches renders can key the files a scene reads by a
+    > computed path.
 * **Return type:**
   [`RenderReport`](_autosummary/manimkit.render.html.md#manimkit.render.RenderReport)
 
@@ -744,7 +895,7 @@ Print the folder of the agent skills shipped with manimkit (to link into ~/.clau
 
 # About this build
 
-This documentation was built on **2026-09-29 18:56 UTC** from commit <a href="https://github.com/thorwhalen/manimkit/commit/d118555ae38658e0a203e673ee8c342343c1ab94"><code>d118555</code></a> on branch <code>main</code>, for **manimkit 0.0.2** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-05 15:31 UTC** from commit <a href="https://github.com/thorwhalen/manimkit/commit/e00f329e06615bb75b6fd2a83f453b476d554140"><code>e00f329</code></a> on branch <code>main</code>, for **manimkit 0.0.3** (from <code>pyproject.toml</code>).
 
 #### NOTE
 Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
@@ -753,7 +904,7 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/manimkit/commit/d118555ae38658e0a203e673ee8c342343c1ab94"><code>d118555ae38658e0a203e673ee8c342343c1ab94</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/manimkit/commit/e00f329e06615bb75b6fd2a83f453b476d554140"><code>e00f329e06615bb75b6fd2a83f453b476d554140</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
 | Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
@@ -764,9 +915,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/manimkit</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/manimkit/actions/runs/36615392053">36615392053</a>  |
+| Run          | <a href="https://github.com/thorwhalen/manimkit/actions/runs/37333226523">37333226523</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>d118555ae38658e0a203e673ee8c342343c1ab94</code> (in the history of the built commit) |
+| Event commit | <code>e00f329e06615bb75b6fd2a83f453b476d554140</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -791,13 +942,13 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/manimkit/0.0.2/">0.0.2</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/manimkit/0.0.3/">0.0.3</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/manimkit && cd manimkit
-git checkout d118555ae38658e0a203e673ee8c342343c1ab94
+git checkout e00f329e06615bb75b6fd2a83f453b476d554140
 pip install "epythet==0.2.12"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
