@@ -63,7 +63,12 @@ METADATA_SUFFIXES: tuple[str, ...] = (".dist-info", ".egg-info")
 #: The :func:`sysconfig.get_paths` entries that hold the installation's code
 #: (not ``data``/``scripts``, which are the bare prefix on a system Python, so
 #: excluding them would drop every read under ``/usr`` or ``/usr/local``).
-INSTALLATION_PATH_NAMES: tuple[str, ...] = ("stdlib", "platstdlib", "purelib", "platlib")
+INSTALLATION_PATH_NAMES: tuple[str, ...] = (
+    "stdlib",
+    "platstdlib",
+    "purelib",
+    "platlib",
+)
 
 
 def _is_read(mode, flags) -> bool:
