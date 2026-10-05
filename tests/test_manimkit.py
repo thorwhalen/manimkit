@@ -248,6 +248,12 @@ try:
 except OSError:
     pass
 sorted(data.glob("*.txt"))                         # a listing is a read of the folder
+import sqlite3
+sqlite3.connect(str(data / "facts.db")).close()    # C code, announced by an audit event
+sys.path.insert(0, str(data / "lib"))
+import helper                                      # its .pyc is current: only IT is opened
+(Path(helper.__file__).parent / "table.csv").read_text()  # data beside a package
+(data / "helper.egg-info" / "PKG-INFO").read_text()  # distribution metadata: not data
 (data / "written.txt").write_text("x")             # a write is not a read
 (Path(os.environ["OUT_DIR"]) / "o.txt").write_text("x")
 open(Path(os.environ["OUT_DIR"]) / "o.txt").read()        # the excluded output folder
@@ -267,6 +273,15 @@ def test_reads_are_recorded_whatever_built_the_path(tmp_path):
     out.mkdir()
     (data / "seconds.txt").write_text("1.5")
     (data / "wo.txt").write_text("")
+    lib = data / "lib"
+    (lib / "helper").mkdir(parents=True)
+    (lib / "helper" / "__init__.py").write_text("FACTOR = 2\n")
+    (lib / "helper" / "table.csv").write_text("1,2\n")
+    import py_compile
+
+    (data / "helper.egg-info").mkdir()
+    (data / "helper.egg-info" / "PKG-INFO").write_text("Name: helper\n")
+    py_compile.compile(str(lib / "helper" / "__init__.py"), doraise=True)  # imported once before
     script = tmp_path / "rec.py"
     script.write_text(_RECORD)
     proc = subprocess.run(
@@ -284,6 +299,13 @@ def test_reads_are_recorded_whatever_built_the_path(tmp_path):
     assert ("file", real(data / "missing.csv")) in reads
     assert ("dir", real(data)) in reads
     assert ("file", real(data / "written.txt")) not in reads
+    assert ("file", real(data / "facts.db")) in reads
+    assert ("file", real(lib / "helper" / "__init__.py")) in reads  # the source, not the .pyc
+    assert ("file", real(lib / "helper" / "table.csv")) in reads
+    assert not any(p.endswith(".pyc") for _, p in reads)
+    assert not any("egg-info" in p for _, p in reads)
+    stats = {r["path"]: r["stat"] for r in json.loads(proc.stdout)}
+    assert stats[str(data / "seconds.txt")][1] == 3  # [mtime_ns, size] at the first read
     assert not any(p.startswith(real(out)) for _, p in reads)
     assert not any("email" in p.split(os.sep) for _, p in reads), reads
 
