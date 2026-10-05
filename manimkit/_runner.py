@@ -9,7 +9,9 @@ monkeypatch ``Scene.play`` without touching anyone else's manim. It:
 2. after every ``play``/``wait``, records the timeline and checks the layout —
    text cut off at the frame edge, shapes partly off-screen, text overlapping text;
 3. samples frames from the resulting video and tiles them into a contact sheet;
-4. writes everything, including a concise error, as JSON for the parent.
+4. writes everything, including a concise error, as JSON for the parent —
+   with, on request, every file and folder the scene read
+   (:class:`manimkit.reads.ReadRecorder`).
 """
 
 from __future__ import annotations
@@ -665,6 +667,11 @@ def run(args: dict) -> dict:
         "source_hash": args.get("source_hash"),
     }
     probe = None
+    recorder = None
+    if args.get("record_reads"):  # before manim loads: its config reads count
+        from manimkit.reads import ReadRecorder
+
+        recorder = ReadRecorder().install()
     try:
         import manim  # noqa: F401
         from manim import config, tempconfig
@@ -742,6 +749,8 @@ def run(args: dict) -> dict:
         result["ok"] = True
     except BaseException as exc:  # noqa: BLE001 - we report everything
         result.update(_concise_error(exc, file))
+    if recorder is not None:
+        result["reads"] = recorder.reads(exclude=[out_dir])
     if probe is not None:
         result["timeline"] = probe.timeline
         result["layout_warnings"] = sorted(

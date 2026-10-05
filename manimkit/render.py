@@ -52,6 +52,11 @@ class RenderReport:
     stderr_tail: str | None = None
     source_hash: str | None = None
     unchanged: bool = False  # same source as the previous render of this file
+    #: With ``record_reads=True``: every file the render opened for reading and
+    #: every folder it listed, outside the Python installation and ``out_dir``
+    #: (``[{"path", "kind"}]``, ``kind`` ``"file"`` or ``"dir"``); ``None`` when
+    #: not recorded, or when the render died before reporting.
+    reads: list | None = None
 
     def __str__(self) -> str:
         lines = []
@@ -148,6 +153,7 @@ def render_check(
     lint: bool = True,
     timeout: float = DFLT_TIMEOUT,
     python: str | None = None,
+    record_reads: bool = False,
 ) -> RenderReport:
     """Lint, render ``scene`` from ``file``, sample frames, report.
 
@@ -162,6 +168,11 @@ def render_check(
     :param no_latex: fail on the first use of LaTeX, for scenes that must run on a
         machine without a TeX install (this one may well have it).
     :param python: interpreter to render with (default: this one).
+    :param record_reads: record every file the render opens for reading and
+        every folder it lists — whatever built the path — in
+        :attr:`RenderReport.reads` (:class:`manimkit.reads.ReadRecorder`), so a
+        caller that caches renders can key the files a scene reads by a
+        computed path.
     """
     file = Path(file).resolve()
     if not file.exists():
@@ -194,6 +205,7 @@ def render_check(
         "probe": probe,
         "no_latex": no_latex,
         "result_path": str(out_dir / "result.json"),
+        "record_reads": record_reads,
     }
     with tempfile.NamedTemporaryFile(
         "w", suffix=".json", delete=False, encoding="utf-8"
@@ -274,6 +286,7 @@ def render_check(
         stderr_tail=None if r.get("ok") else _tail(stderr),
         source_hash=source_hash,
         unchanged=previous_hash == source_hash,
+        reads=r.get("reads"),
     )
 
 
