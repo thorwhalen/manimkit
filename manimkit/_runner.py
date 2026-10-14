@@ -49,10 +49,12 @@ LABEL_HEIGHT = 30
 
 
 class _Probe:
-    def __init__(self, capture_dir=None):
+    def __init__(self, capture_dir=None, user_file=None):
         import manim as m
 
         self.capture_dir = Path(capture_dir) if capture_dir else None
+        self.user_file = Path(user_file) if user_file else None
+        self.line: int | None = None  # the user's play/wait line being checked
         self.beats: list[dict] = []  # settled frame captured after each play
 
         self.m = m
@@ -138,6 +140,8 @@ class _Probe:
         k = (kind, key)
         if k not in self.warnings and len(self.warnings) < MAX_WARNINGS:
             self.warnings[k] = {"t": round(t, 2), "kind": kind, "message": message}
+            if self.line is not None:
+                self.warnings[k]["line"] = self.line
 
     # -- the check --------------------------------------------------------- #
     def check(self, scene):
@@ -351,15 +355,17 @@ class _Probe:
         orig_play, orig_wait = Scene.play, Scene.wait
         state = {"depth": 0}
 
-        def record(scene, t0, what):
+        def record(scene, t0, what, line):
             try:
-                probe.timeline.append(
-                    {
-                        "t0": round(t0, 2),
-                        "t1": round(scene.renderer.time, 2),
-                        "what": what,
-                    }
-                )
+                entry = {
+                    "t0": round(t0, 2),
+                    "t1": round(scene.renderer.time, 2),
+                    "what": what,
+                }
+                if line is not None:
+                    entry["line"] = line
+                probe.timeline.append(entry)
+                probe.line = line
                 probe.check(scene)
                 if what != "wait":
                     probe.capture(scene)
@@ -374,27 +380,100 @@ class _Probe:
 
         def play(scene, *args, **kwargs):
             t0 = scene.renderer.time
+            line = _user_line(probe.user_file) if state["depth"] == 0 else None
             state["depth"] += 1
             try:
                 out = orig_play(scene, *args, **kwargs)
             finally:
                 state["depth"] -= 1
             if state["depth"] == 0:
-                record(scene, t0, _compact([_anim_name(a) for a in args]))
+                record(scene, t0, _compact([_anim_name(a) for a in args]), line)
             return out
 
         def wait(scene, *args, **kwargs):
             t0 = scene.renderer.time
+            line = _user_line(probe.user_file) if state["depth"] == 0 else None
             state["depth"] += 1
             try:
                 out = orig_wait(scene, *args, **kwargs)
             finally:
                 state["depth"] -= 1
             if state["depth"] == 0:
-                record(scene, t0, "wait")
+                record(scene, t0, "wait", line)
             return out
 
         Scene.play, Scene.wait = play, wait
+
+
+def _user_line(user_file, frame=None) -> int | None:
+    """The line of the innermost stack frame running *user_file*, or ``None``.
+
+    That is the ``self.play`` / ``self.wait`` call as the user wrote it, also when it
+    sits in a loop or a helper method rather than directly in ``construct``.
+    """
+    if user_file is None:
+        return None
+    target = str(user_file)
+    f = frame if frame is not None else sys._getframe(1)
+    while f is not None:
+        if f.f_code.co_filename == target:
+            return f.f_lineno
+        f = f.f_back
+    return None
+
+
+def _render_overrides(args: dict, *, out_dir: Path, frame_height: float) -> dict:
+    """The ``tempconfig`` overrides for a render. Pure.
+
+    ``quality`` sets a preset; an exact ``frame_rate`` and ``pixel_size`` then
+    override it. Order matters: ``ManimConfig.update`` applies these keys (all of
+    them config keys, ``quality`` included) in one pass in dict order, so the later
+    ones win over what the ``quality`` setter set. ``frame_width`` follows the pixel
+    aspect with ``frame_height`` kept (8 by default), since the camera derives its
+    frame from the width and the layout probe reads the config's height; manim's own
+    ``-r`` keeps the width instead, so a portrait render here is 4.5 x 8 units.
+
+    >>> o = _render_overrides({"quality": "l", "frame_rate": 24, "pixel_size": [1080, 1080]},
+    ...                       out_dir=Path("/r"), frame_height=8.0)
+    >>> o["quality"], o["frame_rate"], o["pixel_width"], o["pixel_height"], o["frame_width"]
+    ('low_quality', 24, 1080, 1080, 8.0)
+    >>> _render_overrides({"media_dir": "/cache"}, out_dir=Path("/r"), frame_height=8.0)["media_dir"]
+    '/cache'
+    """
+    overrides = {
+        "quality": QUALITY.get(args.get("quality", "l"), "low_quality"),
+        "media_dir": str(args.get("media_dir") or out_dir / "media"),
+        "progress_bar": "none",
+        "verbosity": "WARNING",
+        "input_file": str(args["file"]) if args.get("file") else None,
+        "preview": False,
+        "format": "mp4",
+    }
+    if overrides["input_file"] is None:
+        del overrides["input_file"]
+    if args.get("frame_rate"):
+        overrides["frame_rate"] = args["frame_rate"]
+    if args.get("pixel_size"):
+        width, height = args["pixel_size"]
+        overrides["pixel_width"], overrides["pixel_height"] = width, height
+        overrides["frame_width"] = frame_height * width / height
+    return overrides
+
+
+def _name_lint(file: Path) -> list[dict]:
+    """The lint name check, run here, where manim is imported anyway (not in the caller)."""
+    import ast
+
+    from manimkit.lint import _undefined_manim_names
+
+    try:
+        tree = ast.parse(file.read_text(encoding="utf-8"))
+    except SyntaxError:
+        return []
+    return [
+        {"line": i.line, "message": i.message, "kind": i.kind}
+        for i in _undefined_manim_names(tree)
+    ]
 
 
 class LatexBlockedError(RuntimeError):
@@ -676,12 +755,18 @@ def run(args: dict) -> dict:
         import manim  # noqa: F401
         from manim import config, tempconfig
 
+        if args.get("lint_names"):
+            try:
+                result["lint_names"] = _name_lint(file)
+            except Exception:  # the lint must never break a render
+                result["lint_names"] = []
+
         frames_dir = out_dir / "frames"
         if frames_dir.exists():
             for old in frames_dir.glob("*.png"):
                 old.unlink()
         if args.get("probe", True):
-            probe = _Probe(capture_dir=frames_dir)
+            probe = _Probe(capture_dir=frames_dir, user_file=file)
             probe.install()
         if args.get("no_latex"):
             _block_latex()
@@ -691,15 +776,9 @@ def run(args: dict) -> dict:
         sys.modules[file.stem] = module
         spec.loader.exec_module(module)
         scene_cls = getattr(module, args["scene"])
-        overrides = {
-            "quality": QUALITY.get(args.get("quality", "l"), "low_quality"),
-            "media_dir": str(out_dir / "media"),
-            "progress_bar": "none",
-            "verbosity": "WARNING",
-            "input_file": str(file),
-            "preview": False,
-            "format": "mp4",
-        }
+        overrides = _render_overrides(
+            {**args, "file": str(file)}, out_dir=out_dir, frame_height=config.frame_height
+        )
         with tempconfig(overrides):
             scene = scene_cls()
             scene.render()
@@ -750,7 +829,8 @@ def run(args: dict) -> dict:
     except BaseException as exc:  # noqa: BLE001 - we report everything
         result.update(_concise_error(exc, file))
     if recorder is not None:
-        result["reads"] = recorder.reads(exclude=[out_dir])
+        media = Path(args["media_dir"]).resolve() if args.get("media_dir") else out_dir
+        result["reads"] = recorder.reads(exclude=[out_dir, media])
     if probe is not None:
         result["timeline"] = probe.timeline
         result["layout_warnings"] = sorted(

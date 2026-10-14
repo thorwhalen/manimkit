@@ -138,9 +138,9 @@ def lint_code(code: str, *, check_names: bool = True) -> list[LintIssue]:
     return sorted(set(issues), key=lambda x: (x.line, x.message))
 
 
-def lint_scene(path) -> list[LintIssue]:
-    """Lint a scene file."""
-    return lint_code(Path(path).read_text(encoding="utf-8"))
+def lint_scene(path, *, check_names: bool = True) -> list[LintIssue]:
+    """Lint a scene file. ``check_names`` imports manim (about a second)."""
+    return lint_code(Path(path).read_text(encoding="utf-8"), check_names=check_names)
 
 
 def _structure_issues(code: str, tree: ast.Module) -> list[LintIssue]:

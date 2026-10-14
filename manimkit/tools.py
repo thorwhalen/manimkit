@@ -80,15 +80,27 @@ def render(
     at: str = "",
     out_dir: str = "",
     no_latex: bool = False,
+    fps: float = 0,
+    size: str = "",
+    media_dir: str = "",
 ):
     """Render SCENE from FILE (low quality by default), sample frames into a contact sheet, report.
 
-    --quality l|m|h|p|k (480p15, 720p30, 1080p60, 1440p60, 2160p60). --at 1.5,4 adds
-    frames at those seconds. --no-latex fails on any use of LaTeX (for machines without
-    TeX). Each run overwrites the previous frames and contact sheet.
+    --quality l|m|h|p|k (480p15, 720p30, 1080p60, 1440p60, 2160p60). --fps 24 and
+    --size 1080x1920 set an exact frame rate and pixel size over the preset. --at 1.5,4
+    adds frames at those seconds. --no-latex fails on any use of LaTeX (for machines
+    without TeX). --media-dir keeps manim's media (and its per-play cache) in one folder
+    across renders. Each run overwrites the previous frames and contact sheet.
     Exit code 1 if the render failed.
     """
     times = tuple(float(x) for x in at.split(",") if x.strip())
+    pixel_size = None
+    if size.strip():
+        try:
+            width, height = (int(n) for n in size.lower().split("x"))
+        except ValueError:
+            raise SystemExit(f"--size is WIDTHxHEIGHT, e.g. 1080x1920, not {size!r}")
+        pixel_size = (width, height)
     report = render_check(
         file,
         scene or None,
@@ -97,6 +109,9 @@ def render(
         at=times,
         out_dir=out_dir or None,
         no_latex=no_latex,
+        frame_rate=fps or None,
+        pixel_size=pixel_size,
+        media_dir=media_dir or None,
     )
     print(report)
     if not report.ok:
