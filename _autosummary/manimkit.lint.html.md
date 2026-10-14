@@ -22,7 +22,7 @@ Two kinds of check, both before any render:
 
 | [`lint_code`](#manimkit.lint.lint_code)(code, \*[, check_names])   | Lint Manim source code.   |
 |---------------------------------------------------------------------------------------|---------------------------|
-| [`lint_scene`](#manimkit.lint.lint_scene)(path)                     | Lint a scene file.        |
+| [`lint_scene`](#manimkit.lint.lint_scene)(path, \*[, check_names])  | Lint a scene file.        |
 
 ### Classes
 
@@ -42,9 +42,9 @@ Lint Manim source code. `check_names` imports manim (about a second).
 * **Return type:**
   [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`LintIssue`](#manimkit.lint.LintIssue)]
 
-### manimkit.lint.lint_scene(path)
+### manimkit.lint.lint_scene(path, , check_names=True)
 
-Lint a scene file.
+Lint a scene file. `check_names` imports manim (about a second).
 
 * **Return type:**
   [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`LintIssue`](#manimkit.lint.LintIssue)]

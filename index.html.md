@@ -24,7 +24,7 @@ LLMs write Manim well enough to be dangerous. The recurring failures are: ManimG
 - **A corpus** of retrievable scenes: 21 original, curated full scenes (data stories, line and bar and pie charts, flowcharts, cycle and sequence diagrams, array algorithms, equation derivations, linear transformations, calculus with trackers, visual proofs, graph traversal, sorting, timelines, code walkthroughs, neural-net diagrams, vectors, camera zooms), the 27 scenes of the official ManimCE example gallery (MIT, with attribution), and every `.. manim::` example in the docstrings of **your installed manim** (about 400 in manim 0.20), harvested on the fly so their API always matches the version you render with. Every shipped scene is rendered in the repo’s verification run.
 - **Search** (`search_examples`, `manimkit search`): dependency-free BM25 over titles, tags, descriptions and the Manim identifiers each scene uses, with `--no-latex` to keep only scenes that render without a TeX install. `scorer=` is the seam for embedding retrieval.
 - **Lint** (`lint_scene`, `manimkit lint`): known wrong-API patterns with the right replacement, plus every capitalised name your file uses that the installed manim does not define, with close matches (`LIGHT_BLUE` -> did you mean `LIGHT_BROWN`, `BLUE`…).
-- **Render and inspect** (`render_check`, `manimkit render`): renders in a child process, records a timeline of every `play`/`wait` with start and end seconds, checks the layout after each (text cut off at the frame edge, text overlapping text, text crossed by a shape’s outline, shapes partly off-screen), samples frames into one contact-sheet PNG, and reports errors as the exception plus the lines of *your* file that led to it, a hint for known failure signatures, and the LaTeX log’s error lines for LaTeX failures. `--no-latex` makes any use of LaTeX fail, for scenes that must run on a machine without TeX.
+- **Render and inspect** (`render_check`, `manimkit render`): renders in a child process, records a timeline of every `play`/`wait` with start and end seconds, checks the layout after each (text cut off at the frame edge, text overlapping text, text crossed by a shape’s outline, shapes partly off-screen), samples frames into one contact-sheet PNG, and reports errors as the exception plus the lines of *your* file that led to it, a hint for known failure signatures, and the LaTeX log’s error lines for LaTeX failures. `--no-latex` makes any use of LaTeX fail, for scenes that must run on a machine without TeX. Each timeline entry and layout warning names the line of your file that called `play`/`wait` (also from a loop or a helper). The cheap lint checks run in your process and the name check, which imports manim, runs in the render’s child process.
 
 ## Python API
 
@@ -38,6 +38,11 @@ print(get_example("flowchart_process").runnable_code)
 report = render_check("scene.py", "MyScene", quality="l", n_frames=6)
 print(report)  # duration, timeline, layout warnings, contact sheet path
 report.ok, report.contact_sheet, report.layout_warnings
+
+# a caller that renders for a film: exact fps and size (no resampling afterwards),
+# and manim's per-play cache kept across renders while each render's frames stay apart
+render_check("scene.py", frame_rate=24, pixel_size=(1080, 1920),
+             media_dir="~/.cache/my_app/manim_media", out_dir="renders/shot_03")
 ```
 
 Your own scenes can join the corpus: `search_examples(query, sources=["curated", "api", "/path/to/my/scenes"])`. A header docstring (first line = title, then `tags:`, `scene:`, `source:` lines, then a description) makes them rank well; without one the file name and code identifiers are still indexed.

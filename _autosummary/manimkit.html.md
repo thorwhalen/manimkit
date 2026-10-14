@@ -31,7 +31,7 @@ True
 | [`get_example`](#manimkit.get_example)(example_id, \*[, sources])            | The example with this id (exact, else a unique case-insensitive suffix match).                                       |
 | [`iter_examples`](#manimkit.iter_examples)([sources])                          | Every example from `sources`.                                                                                        |
 | [`lint_code`](#manimkit.lint_code)(code, \*[, check_names])                | Lint Manim source code.                                                                                              |
-| [`lint_scene`](#manimkit.lint_scene)(path)                                  | Lint a scene file.                                                                                                   |
+| [`lint_scene`](#manimkit.lint_scene)(path, \*[, check_names])               | Lint a scene file.                                                                                                   |
 | [`render_check`](#manimkit.render_check)(file[, scene, quality, ...])         | Lint, render `scene` from `file`, sample frames, report.                                                             |
 | [`requirements_report`](#manimkit.requirements_report)()                             | Human-readable [`check_requirements()`](#manimkit.check_requirements), plus what to do without LaTeX. |
 | [`search_examples`](#manimkit.search_examples)(query[, k, sources, origin, ...]) | The `k` examples most relevant to `query`, best first.                                                               |
@@ -135,14 +135,14 @@ Lint Manim source code. `check_names` imports manim (about a second).
 * **Return type:**
   [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`LintIssue`](manimkit.lint.html.md#manimkit.lint.LintIssue)]
 
-### manimkit.lint_scene(path)
+### manimkit.lint_scene(path, , check_names=True)
 
-Lint a scene file.
+Lint a scene file. `check_names` imports manim (about a second).
 
 * **Return type:**
   [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`LintIssue`](manimkit.lint.html.md#manimkit.lint.LintIssue)]
 
-### manimkit.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None, record_reads=False)
+### manimkit.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None, record_reads=False, frame_rate=None, pixel_size=None, media_dir=None)
 
 Lint, render `scene` from `file`, sample frames, report.
 
@@ -165,8 +165,22 @@ Lint, render `scene` from `file`, sample frames, report.
     [`RenderReport.reads`](#manimkit.RenderReport.reads) ([`manimkit.reads.ReadRecorder`](manimkit.reads.html.md#manimkit.reads.ReadRecorder)), so a
     > caller that caches renders can key the files a scene reads by a
     > computed path.
+  * **frame_rate** ([`float`](https://docs.python.org/3/builtins/functions.html#float) | [`None`](https://docs.python.org/3/builtins/constants.html#None)) – exact output fps, overriding the `quality` preset’s.
+  * **pixel_size** ([`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int)] | [`None`](https://docs.python.org/3/builtins/constants.html#None)) – exact output `(width, height)` in pixels (even numbers,
+    as H.264 needs), overriding the preset’s; the frame’s width follows the
+    aspect, so a square or portrait size is not stretched.
+  * **media_dir** – where manim writes its media, including the per-`play`
+    partial-movie cache (default: `<out_dir>/media`). Point several renders
+    at one folder to keep that cache across them, while each render’s frames
+    and contact sheet still go to its own `out_dir`. Do not share one folder
+    between two renders of the same scene running at the same time, nor between
+    two scene files with the same name and scene class (they write the same movie).
 * **Return type:**
   [`RenderReport`](manimkit.render.html.md#manimkit.render.RenderReport)
+
+Linting is split: the cheap checks (syntax, structure, known wrong APIs) run
+here, and the name check, which imports manim, runs in the render’s child
+process, so manim is never imported into the caller.
 
 ### manimkit.requirements_report()
 

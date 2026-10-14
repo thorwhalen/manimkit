@@ -2,16 +2,18 @@
 
 # About this build
 
-This documentation was built on **2026-10-05 15:31 UTC** from commit <a href="https://github.com/thorwhalen/manimkit/commit/e00f329e06615bb75b6fd2a83f453b476d554140"><code>e00f329</code></a> on branch <code>main</code>, for **manimkit 0.0.3** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-14 06:18 UTC** from commit <a href="https://github.com/thorwhalen/manimkit/commit/476acced93fd27f9224f27b6a17162ca66c97975"><code>476acce</code></a> on branch <code>main</code>, for **manimkit 0.0.4** (from <code>pyproject.toml</code>).
 
-#### NOTE
-Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
+#### WARNING
+The documentation and the package may be misaligned:
+
+- The documented version (0.0.4) is behind the latest release on PyPI (0.0.5): `pip install manimkit` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/manimkit/commit/e00f329e06615bb75b6fd2a83f453b476d554140"><code>e00f329e06615bb75b6fd2a83f453b476d554140</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/manimkit/commit/476acced93fd27f9224f27b6a17162ca66c97975"><code>476acced93fd27f9224f27b6a17162ca66c97975</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
 | Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
@@ -22,18 +24,18 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/manimkit</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/manimkit/actions/runs/37333226523">37333226523</a>  |
+| Run          | <a href="https://github.com/thorwhalen/manimkit/actions/runs/38521264769">38521264769</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>e00f329e06615bb75b6fd2a83f453b476d554140</code> (in the history of the built commit) |
+| Event commit | <code>476acced93fd27f9224f27b6a17162ca66c97975</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.12  |
+| epythet  | 0.2.17  |
 | Sphinx   | 9.1.0   |
 | docutils | 0.22.4  |
-| Python   | 3.12.14 |
+| Python   | 3.12.15 |
 
 ## Configuration as resolved
 
@@ -49,14 +51,14 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/manimkit/0.0.3/">0.0.3</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/manimkit/0.0.5/">0.0.5</a>, newer than the documented version (0.0.4).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/manimkit && cd manimkit
-git checkout e00f329e06615bb75b6fd2a83f453b476d554140
-pip install "epythet==0.2.12"
+git checkout 476acced93fd27f9224f27b6a17162ca66c97975
+pip install "epythet==0.2.17"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

@@ -1,4 +1,4 @@
-> built 2026-10-05 15:31 UTC from e00f329 (main) · manimkit 0.0.3. Details: build_info.json
+> built 2026-10-14 06:18 UTC from 476acce (main) · manimkit 0.0.4. Details: build_info.json
 
 # index.html.md
 
@@ -28,7 +28,7 @@ LLMs write Manim well enough to be dangerous. The recurring failures are: ManimG
 - **A corpus** of retrievable scenes: 21 original, curated full scenes (data stories, line and bar and pie charts, flowcharts, cycle and sequence diagrams, array algorithms, equation derivations, linear transformations, calculus with trackers, visual proofs, graph traversal, sorting, timelines, code walkthroughs, neural-net diagrams, vectors, camera zooms), the 27 scenes of the official ManimCE example gallery (MIT, with attribution), and every `.. manim::` example in the docstrings of **your installed manim** (about 400 in manim 0.20), harvested on the fly so their API always matches the version you render with. Every shipped scene is rendered in the repo’s verification run.
 - **Search** (`search_examples`, `manimkit search`): dependency-free BM25 over titles, tags, descriptions and the Manim identifiers each scene uses, with `--no-latex` to keep only scenes that render without a TeX install. `scorer=` is the seam for embedding retrieval.
 - **Lint** (`lint_scene`, `manimkit lint`): known wrong-API patterns with the right replacement, plus every capitalised name your file uses that the installed manim does not define, with close matches (`LIGHT_BLUE` -> did you mean `LIGHT_BROWN`, `BLUE`…).
-- **Render and inspect** (`render_check`, `manimkit render`): renders in a child process, records a timeline of every `play`/`wait` with start and end seconds, checks the layout after each (text cut off at the frame edge, text overlapping text, text crossed by a shape’s outline, shapes partly off-screen), samples frames into one contact-sheet PNG, and reports errors as the exception plus the lines of *your* file that led to it, a hint for known failure signatures, and the LaTeX log’s error lines for LaTeX failures. `--no-latex` makes any use of LaTeX fail, for scenes that must run on a machine without TeX.
+- **Render and inspect** (`render_check`, `manimkit render`): renders in a child process, records a timeline of every `play`/`wait` with start and end seconds, checks the layout after each (text cut off at the frame edge, text overlapping text, text crossed by a shape’s outline, shapes partly off-screen), samples frames into one contact-sheet PNG, and reports errors as the exception plus the lines of *your* file that led to it, a hint for known failure signatures, and the LaTeX log’s error lines for LaTeX failures. `--no-latex` makes any use of LaTeX fail, for scenes that must run on a machine without TeX. Each timeline entry and layout warning names the line of your file that called `play`/`wait` (also from a loop or a helper). The cheap lint checks run in your process and the name check, which imports manim, runs in the render’s child process.
 
 ## Python API
 
@@ -42,6 +42,11 @@ print(get_example("flowchart_process").runnable_code)
 report = render_check("scene.py", "MyScene", quality="l", n_frames=6)
 print(report)  # duration, timeline, layout warnings, contact sheet path
 report.ok, report.contact_sheet, report.layout_warnings
+
+# a caller that renders for a film: exact fps and size (no resampling afterwards),
+# and manim's per-play cache kept across renders while each render's frames stay apart
+render_check("scene.py", frame_rate=24, pixel_size=(1080, 1920),
+             media_dir="~/.cache/my_app/manim_media", out_dir="renders/shot_03")
 ```
 
 Your own scenes can join the corpus: `search_examples(query, sources=["curated", "api", "/path/to/my/scenes"])`. A header docstring (first line = title, then `tags:`, `scene:`, `source:` lines, then a description) makes them rank well; without one the file name and code identifiers are still indexed.
@@ -286,7 +291,7 @@ True
 | [`get_example`](_autosummary/manimkit.html.md#manimkit.get_example)(example_id, \*[, sources])            | The example with this id (exact, else a unique case-insensitive suffix match).                                       |
 | [`iter_examples`](_autosummary/manimkit.html.md#manimkit.iter_examples)([sources])                          | Every example from `sources`.                                                                                        |
 | [`lint_code`](_autosummary/manimkit.html.md#manimkit.lint_code)(code, \*[, check_names])                | Lint Manim source code.                                                                                              |
-| [`lint_scene`](_autosummary/manimkit.html.md#manimkit.lint_scene)(path)                                  | Lint a scene file.                                                                                                   |
+| [`lint_scene`](_autosummary/manimkit.html.md#manimkit.lint_scene)(path, \*[, check_names])               | Lint a scene file.                                                                                                   |
 | [`render_check`](_autosummary/manimkit.html.md#manimkit.render_check)(file[, scene, quality, ...])         | Lint, render `scene` from `file`, sample frames, report.                                                             |
 | [`requirements_report`](_autosummary/manimkit.html.md#manimkit.requirements_report)()                             | Human-readable [`check_requirements()`](_autosummary/manimkit.html.md#manimkit.check_requirements), plus what to do without LaTeX. |
 | [`search_examples`](_autosummary/manimkit.html.md#manimkit.search_examples)(query[, k, sources, origin, ...]) | The `k` examples most relevant to `query`, best first.                                                               |
@@ -390,14 +395,14 @@ Lint Manim source code. `check_names` imports manim (about a second).
 * **Return type:**
   [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`LintIssue`](_autosummary/manimkit.lint.html.md#manimkit.lint.LintIssue)]
 
-### manimkit.lint_scene(path)
+### manimkit.lint_scene(path, , check_names=True)
 
-Lint a scene file.
+Lint a scene file. `check_names` imports manim (about a second).
 
 * **Return type:**
   [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`LintIssue`](_autosummary/manimkit.lint.html.md#manimkit.lint.LintIssue)]
 
-### manimkit.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None, record_reads=False)
+### manimkit.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None, record_reads=False, frame_rate=None, pixel_size=None, media_dir=None)
 
 Lint, render `scene` from `file`, sample frames, report.
 
@@ -420,8 +425,22 @@ Lint, render `scene` from `file`, sample frames, report.
     [`RenderReport.reads`](_autosummary/manimkit.html.md#manimkit.RenderReport.reads) ([`manimkit.reads.ReadRecorder`](_autosummary/manimkit.reads.html.md#manimkit.reads.ReadRecorder)), so a
     > caller that caches renders can key the files a scene reads by a
     > computed path.
+  * **frame_rate** ([`float`](https://docs.python.org/3/builtins/functions.html#float) | [`None`](https://docs.python.org/3/builtins/constants.html#None)) – exact output fps, overriding the `quality` preset’s.
+  * **pixel_size** ([`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int)] | [`None`](https://docs.python.org/3/builtins/constants.html#None)) – exact output `(width, height)` in pixels (even numbers,
+    as H.264 needs), overriding the preset’s; the frame’s width follows the
+    aspect, so a square or portrait size is not stretched.
+  * **media_dir** – where manim writes its media, including the per-`play`
+    partial-movie cache (default: `<out_dir>/media`). Point several renders
+    at one folder to keep that cache across them, while each render’s frames
+    and contact sheet still go to its own `out_dir`. Do not share one folder
+    between two renders of the same scene running at the same time, nor between
+    two scene files with the same name and scene class (they write the same movie).
 * **Return type:**
   [`RenderReport`](_autosummary/manimkit.render.html.md#manimkit.render.RenderReport)
+
+Linting is split: the cheap checks (syntax, structure, known wrong APIs) run
+here, and the name check, which imports manim, runs in the render’s child
+process, so manim is never imported into the caller.
 
 ### manimkit.requirements_report()
 
@@ -487,7 +506,7 @@ Two kinds of check, both before any render:
 
 | [`lint_code`](_autosummary/manimkit.lint.html.md#manimkit.lint.lint_code)(code, \*[, check_names])   | Lint Manim source code.   |
 |---------------------------------------------------------------------------------------|---------------------------|
-| [`lint_scene`](_autosummary/manimkit.lint.html.md#manimkit.lint.lint_scene)(path)                     | Lint a scene file.        |
+| [`lint_scene`](_autosummary/manimkit.lint.html.md#manimkit.lint.lint_scene)(path, \*[, check_names])  | Lint a scene file.        |
 
 ### Classes
 
@@ -507,9 +526,9 @@ Lint Manim source code. `check_names` imports manim (about a second).
 * **Return type:**
   [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`LintIssue`](_autosummary/manimkit.lint.html.md#manimkit.lint.LintIssue)]
 
-### manimkit.lint.lint_scene(path)
+### manimkit.lint.lint_scene(path, , check_names=True)
 
-Lint a scene file.
+Lint a scene file. `check_names` imports manim (about a second).
 
 * **Return type:**
   [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`LintIssue`](_autosummary/manimkit.lint.html.md#manimkit.lint.LintIssue)]
@@ -670,7 +689,7 @@ not recorded, or when the render died before reporting.
 * **Type:**
   With `record_reads=True`
 
-### manimkit.render.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None, record_reads=False)
+### manimkit.render.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None, record_reads=False, frame_rate=None, pixel_size=None, media_dir=None)
 
 Lint, render `scene` from `file`, sample frames, report.
 
@@ -693,8 +712,22 @@ Lint, render `scene` from `file`, sample frames, report.
     [`RenderReport.reads`](_autosummary/manimkit.render.html.md#manimkit.render.RenderReport.reads) ([`manimkit.reads.ReadRecorder`](_autosummary/manimkit.reads.html.md#manimkit.reads.ReadRecorder)), so a
     > caller that caches renders can key the files a scene reads by a
     > computed path.
+  * **frame_rate** ([`float`](https://docs.python.org/3/builtins/functions.html#float) | [`None`](https://docs.python.org/3/builtins/constants.html#None)) – exact output fps, overriding the `quality` preset’s.
+  * **pixel_size** ([`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int)] | [`None`](https://docs.python.org/3/builtins/constants.html#None)) – exact output `(width, height)` in pixels (even numbers,
+    as H.264 needs), overriding the preset’s; the frame’s width follows the
+    aspect, so a square or portrait size is not stretched.
+  * **media_dir** – where manim writes its media, including the per-`play`
+    partial-movie cache (default: `<out_dir>/media`). Point several renders
+    at one folder to keep that cache across them, while each render’s frames
+    and contact sheet still go to its own `out_dir`. Do not share one folder
+    between two renders of the same scene running at the same time, nor between
+    two scene files with the same name and scene class (they write the same movie).
 * **Return type:**
   [`RenderReport`](_autosummary/manimkit.render.html.md#manimkit.render.RenderReport)
+
+Linting is split: the cheap checks (syntax, structure, known wrong APIs) run
+here, and the name check, which imports manim, runs in the render’s child
+process, so manim is never imported into the caller.
 
 ### manimkit.render.resolve_scene(file, scene=None)
 
@@ -864,13 +897,15 @@ Static checks for common ManimCE mistakes (ManimGL names, removed APIs, LaTeX tr
 
 List example ids and titles (origin: curated, gallery, api, or all).
 
-### manimkit.tools.render(file, scene='', , quality='l', frames=8, at='', out_dir='', no_latex=False)
+### manimkit.tools.render(file, scene='', , quality='l', frames=8, at='', out_dir='', no_latex=False, fps=0, size='', media_dir='')
 
 Render SCENE from FILE (low quality by default), sample frames into a contact sheet, report.
 
-–quality l|m|h|p|k (480p15, 720p30, 1080p60, 1440p60, 2160p60). –at 1.5,4 adds
-frames at those seconds. –no-latex fails on any use of LaTeX (for machines without
-TeX). Each run overwrites the previous frames and contact sheet.
+–quality l|m|h|p|k (480p15, 720p30, 1080p60, 1440p60, 2160p60). –fps 24 and
+–size 1080x1920 set an exact frame rate and pixel size over the preset. –at 1.5,4
+adds frames at those seconds. –no-latex fails on any use of LaTeX (for machines
+without TeX). –media-dir keeps manim’s media (and its per-play cache) in one folder
+across renders. Each run overwrites the previous frames and contact sheet.
 Exit code 1 if the render failed.
 
 ### manimkit.tools.search(query, , k=5, code=False, no_latex=False, origin='')
@@ -895,16 +930,18 @@ Print the folder of the agent skills shipped with manimkit (to link into ~/.clau
 
 # About this build
 
-This documentation was built on **2026-10-05 15:31 UTC** from commit <a href="https://github.com/thorwhalen/manimkit/commit/e00f329e06615bb75b6fd2a83f453b476d554140"><code>e00f329</code></a> on branch <code>main</code>, for **manimkit 0.0.3** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-14 06:18 UTC** from commit <a href="https://github.com/thorwhalen/manimkit/commit/476acced93fd27f9224f27b6a17162ca66c97975"><code>476acce</code></a> on branch <code>main</code>, for **manimkit 0.0.4** (from <code>pyproject.toml</code>).
 
-#### NOTE
-Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
+#### WARNING
+The documentation and the package may be misaligned:
+
+- The documented version (0.0.4) is behind the latest release on PyPI (0.0.5): `pip install manimkit` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/manimkit/commit/e00f329e06615bb75b6fd2a83f453b476d554140"><code>e00f329e06615bb75b6fd2a83f453b476d554140</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/manimkit/commit/476acced93fd27f9224f27b6a17162ca66c97975"><code>476acced93fd27f9224f27b6a17162ca66c97975</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
 | Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
@@ -915,18 +952,18 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/manimkit</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/manimkit/actions/runs/37333226523">37333226523</a>  |
+| Run          | <a href="https://github.com/thorwhalen/manimkit/actions/runs/38521264769">38521264769</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>e00f329e06615bb75b6fd2a83f453b476d554140</code> (in the history of the built commit) |
+| Event commit | <code>476acced93fd27f9224f27b6a17162ca66c97975</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.12  |
+| epythet  | 0.2.17  |
 | Sphinx   | 9.1.0   |
 | docutils | 0.22.4  |
-| Python   | 3.12.14 |
+| Python   | 3.12.15 |
 
 ## Configuration as resolved
 
@@ -942,14 +979,14 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/manimkit/0.0.3/">0.0.3</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/manimkit/0.0.5/">0.0.5</a>, newer than the documented version (0.0.4).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/manimkit && cd manimkit
-git checkout e00f329e06615bb75b6fd2a83f453b476d554140
-pip install "epythet==0.2.12"
+git checkout 476acced93fd27f9224f27b6a17162ca66c97975
+pip install "epythet==0.2.17"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

@@ -28,13 +28,15 @@ Static checks for common ManimCE mistakes (ManimGL names, removed APIs, LaTeX tr
 
 List example ids and titles (origin: curated, gallery, api, or all).
 
-### manimkit.tools.render(file, scene='', , quality='l', frames=8, at='', out_dir='', no_latex=False)
+### manimkit.tools.render(file, scene='', , quality='l', frames=8, at='', out_dir='', no_latex=False, fps=0, size='', media_dir='')
 
 Render SCENE from FILE (low quality by default), sample frames into a contact sheet, report.
 
-–quality l|m|h|p|k (480p15, 720p30, 1080p60, 1440p60, 2160p60). –at 1.5,4 adds
-frames at those seconds. –no-latex fails on any use of LaTeX (for machines without
-TeX). Each run overwrites the previous frames and contact sheet.
+–quality l|m|h|p|k (480p15, 720p30, 1080p60, 1440p60, 2160p60). –fps 24 and
+–size 1080x1920 set an exact frame rate and pixel size over the preset. –at 1.5,4
+adds frames at those seconds. –no-latex fails on any use of LaTeX (for machines
+without TeX). –media-dir keeps manim’s media (and its per-play cache) in one folder
+across renders. Each run overwrites the previous frames and contact sheet.
 Exit code 1 if the render failed.
 
 ### manimkit.tools.search(query, , k=5, code=False, no_latex=False, origin='')

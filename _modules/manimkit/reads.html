@@ -235,161 +235,166 @@
 </span><span id="line-63"><span class="c1">#: The :func:`sysconfig.get_paths` entries that hold the installation's code</span>
 </span><span id="line-64"><span class="c1">#: (not ``data``/``scripts``, which are the bare prefix on a system Python, so</span>
 </span><span id="line-65"><span class="c1">#: excluding them would drop every read under ``/usr`` or ``/usr/local``).</span>
-</span><span id="line-66"><span class="n">INSTALLATION_PATH_NAMES</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"stdlib"</span><span class="p">,</span> <span class="s2">"platstdlib"</span><span class="p">,</span> <span class="s2">"purelib"</span><span class="p">,</span> <span class="s2">"platlib"</span><span class="p">)</span>
-</span><span id="line-67">
-</span><span id="line-68">
-</span><span id="line-69"><span class="k">def</span><span class="w"> </span><span class="nf">_is_read</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="line-70"><span class="w">    </span><span class="sd">"""Whether an ``open`` audit event opens for reading (``r``, ``r+``, ``a+``…)."""</span>
-</span><span id="line-71">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">flags</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">flags</span><span class="p">:</span>
-</span><span id="line-72">        <span class="k">return</span> <span class="p">(</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">_O_ACCMODE</span><span class="p">)</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">O_WRONLY</span>
-</span><span id="line-73">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="line-74">        <span class="k">return</span> <span class="s2">"r"</span> <span class="ow">in</span> <span class="n">mode</span> <span class="ow">or</span> <span class="s2">"+"</span> <span class="ow">in</span> <span class="n">mode</span>
-</span><span id="line-75">    <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># unknown: count it, a spurious read only costs a re-render</span>
-</span><span id="line-76">
-</span><span id="line-77">
-</span><span id="line-78"><span class="k">def</span><span class="w"> </span><span class="nf">_norm</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="line-79"><span class="w">    </span><span class="sd">"""The form two paths are compared in: real, and case-folded where the OS is."""</span>
-</span><span id="line-80">    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normcase</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</span><span id="line-66"><span class="n">INSTALLATION_PATH_NAMES</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="line-67">    <span class="s2">"stdlib"</span><span class="p">,</span>
+</span><span id="line-68">    <span class="s2">"platstdlib"</span><span class="p">,</span>
+</span><span id="line-69">    <span class="s2">"purelib"</span><span class="p">,</span>
+</span><span id="line-70">    <span class="s2">"platlib"</span><span class="p">,</span>
+</span><span id="line-71"><span class="p">)</span>
+</span><span id="line-72">
+</span><span id="line-73">
+</span><span id="line-74"><span class="k">def</span><span class="w"> </span><span class="nf">_is_read</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="line-75"><span class="w">    </span><span class="sd">"""Whether an ``open`` audit event opens for reading (``r``, ``r+``, ``a+``…)."""</span>
+</span><span id="line-76">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">flags</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">flags</span><span class="p">:</span>
+</span><span id="line-77">        <span class="k">return</span> <span class="p">(</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">_O_ACCMODE</span><span class="p">)</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">O_WRONLY</span>
+</span><span id="line-78">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="line-79">        <span class="k">return</span> <span class="s2">"r"</span> <span class="ow">in</span> <span class="n">mode</span> <span class="ow">or</span> <span class="s2">"+"</span> <span class="ow">in</span> <span class="n">mode</span>
+</span><span id="line-80">    <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># unknown: count it, a spurious read only costs a re-render</span>
 </span><span id="line-81">
 </span><span id="line-82">
+</span><span id="line-83"><span class="k">def</span><span class="w"> </span><span class="nf">_norm</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="line-84"><span class="w">    </span><span class="sd">"""The form two paths are compared in: real, and case-folded where the OS is."""</span>
+</span><span id="line-85">    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normcase</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</span><span id="line-86">
+</span><span id="line-87">
 <div class="viewcode-block" id="installation_roots">
 <a class="viewcode-back" href="../../_autosummary/manimkit.reads.html#manimkit.reads.installation_roots">[docs]</a>
-</span><span id="line-83"><span class="k">def</span><span class="w"> </span><span class="nf">installation_roots</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="line-84"><span class="w">    </span><span class="sd">"""The folders of this Python installation's code: the standard library and</span>
-</span><span id="line-85"><span class="sd">    site-packages (system and user). What a caller keys by version. An editable</span>
-</span><span id="line-86"><span class="sd">    install's folder is NOT one of them: its files can change without any</span>
-</span><span id="line-87"><span class="sd">    version moving, so reads of them are reported."""</span>
-</span><span id="line-88">    <span class="n">paths</span> <span class="o">=</span> <span class="n">sysconfig</span><span class="o">.</span><span class="n">get_paths</span><span class="p">()</span>
-</span><span id="line-89">    <span class="n">roots</span> <span class="o">=</span> <span class="p">{</span><span class="n">paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">INSTALLATION_PATH_NAMES</span><span class="p">}</span>
-</span><span id="line-90">    <span class="k">try</span><span class="p">:</span>
-</span><span id="line-91">        <span class="n">roots</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">getsitepackages</span><span class="p">())</span>
-</span><span id="line-92">    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># pragma: no cover - a virtualenv without it</span>
-</span><span id="line-93">        <span class="k">pass</span>
-</span><span id="line-94">    <span class="n">user_site</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">getusersitepackages</span><span class="p">()</span> <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">ENABLE_USER_SITE</span> <span class="k">else</span> <span class="kc">None</span>
-</span><span id="line-95">    <span class="k">if</span> <span class="n">user_site</span><span class="p">:</span>
-</span><span id="line-96">        <span class="n">roots</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user_site</span><span class="p">)</span>
-</span><span id="line-97">    <span class="k">return</span> <span class="nb">sorted</span><span class="p">({</span><span class="n">_norm</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">roots</span> <span class="k">if</span> <span class="n">r</span><span class="p">})</span></div>
+</span><span id="line-88"><span class="k">def</span><span class="w"> </span><span class="nf">installation_roots</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="line-89"><span class="w">    </span><span class="sd">"""The folders of this Python installation's code: the standard library and</span>
+</span><span id="line-90"><span class="sd">    site-packages (system and user). What a caller keys by version. An editable</span>
+</span><span id="line-91"><span class="sd">    install's folder is NOT one of them: its files can change without any</span>
+</span><span id="line-92"><span class="sd">    version moving, so reads of them are reported."""</span>
+</span><span id="line-93">    <span class="n">paths</span> <span class="o">=</span> <span class="n">sysconfig</span><span class="o">.</span><span class="n">get_paths</span><span class="p">()</span>
+</span><span id="line-94">    <span class="n">roots</span> <span class="o">=</span> <span class="p">{</span><span class="n">paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">INSTALLATION_PATH_NAMES</span><span class="p">}</span>
+</span><span id="line-95">    <span class="k">try</span><span class="p">:</span>
+</span><span id="line-96">        <span class="n">roots</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">getsitepackages</span><span class="p">())</span>
+</span><span id="line-97">    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># pragma: no cover - a virtualenv without it</span>
+</span><span id="line-98">        <span class="k">pass</span>
+</span><span id="line-99">    <span class="n">user_site</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">getusersitepackages</span><span class="p">()</span> <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">ENABLE_USER_SITE</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="line-100">    <span class="k">if</span> <span class="n">user_site</span><span class="p">:</span>
+</span><span id="line-101">        <span class="n">roots</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user_site</span><span class="p">)</span>
+</span><span id="line-102">    <span class="k">return</span> <span class="nb">sorted</span><span class="p">({</span><span class="n">_norm</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">roots</span> <span class="k">if</span> <span class="n">r</span><span class="p">})</span></div>
 
-</span><span id="line-98">
-</span><span id="line-99">
-</span><span id="line-100"><span class="k">def</span><span class="w"> </span><span class="nf">_source_of</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="line-101"><span class="w">    </span><span class="sd">"""The source file a cached bytecode file was compiled from (Python reads</span>
-</span><span id="line-102"><span class="sd">    only the ``.pyc`` while it is current, so the ``.py`` is never opened);</span>
-</span><span id="line-103"><span class="sd">    any other path unchanged."""</span>
-</span><span id="line-104">    <span class="k">if</span> <span class="s2">"__pycache__"</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parts</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".pyc"</span><span class="p">):</span>
-</span><span id="line-105">        <span class="k">try</span><span class="p">:</span>
-</span><span id="line-106">            <span class="k">return</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">source_from_cache</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-</span><span id="line-107">        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-</span><span id="line-108">            <span class="k">return</span> <span class="n">path</span>
-</span><span id="line-109">    <span class="k">return</span> <span class="n">path</span>
-</span><span id="line-110">
-</span><span id="line-111">
-</span><span id="line-112"><span class="k">def</span><span class="w"> </span><span class="nf">_is_import_artifact</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="line-113"><span class="w">    </span><span class="sd">"""An editable install's path-hook pseudo-file and distribution metadata:</span>
-</span><span id="line-114"><span class="sd">    what importing a module or looking up an entry point touches."""</span>
-</span><span id="line-115">    <span class="n">parts</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parts</span>
-</span><span id="line-116">    <span class="k">if</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">:</span>
-</span><span id="line-117">        <span class="k">return</span> <span class="kc">False</span>
-</span><span id="line-118">    <span class="k">return</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"__editable__."</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span>
-</span><span id="line-119">        <span class="n">p</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">METADATA_SUFFIXES</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span>
-</span><span id="line-120">    <span class="p">)</span>
-</span><span id="line-121">
-</span><span id="line-122">
-</span><span id="line-123"><span class="k">def</span><span class="w"> </span><span class="nf">_under</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">roots</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="line-124">    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">path</span> <span class="o">==</span> <span class="n">r</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">roots</span><span class="p">)</span>
-</span><span id="line-125">
+</span><span id="line-103">
+</span><span id="line-104">
+</span><span id="line-105"><span class="k">def</span><span class="w"> </span><span class="nf">_source_of</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="line-106"><span class="w">    </span><span class="sd">"""The source file a cached bytecode file was compiled from (Python reads</span>
+</span><span id="line-107"><span class="sd">    only the ``.pyc`` while it is current, so the ``.py`` is never opened);</span>
+</span><span id="line-108"><span class="sd">    any other path unchanged."""</span>
+</span><span id="line-109">    <span class="k">if</span> <span class="s2">"__pycache__"</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parts</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".pyc"</span><span class="p">):</span>
+</span><span id="line-110">        <span class="k">try</span><span class="p">:</span>
+</span><span id="line-111">            <span class="k">return</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">source_from_cache</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</span><span id="line-112">        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+</span><span id="line-113">            <span class="k">return</span> <span class="n">path</span>
+</span><span id="line-114">    <span class="k">return</span> <span class="n">path</span>
+</span><span id="line-115">
+</span><span id="line-116">
+</span><span id="line-117"><span class="k">def</span><span class="w"> </span><span class="nf">_is_import_artifact</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="line-118"><span class="w">    </span><span class="sd">"""An editable install's path-hook pseudo-file and distribution metadata:</span>
+</span><span id="line-119"><span class="sd">    what importing a module or looking up an entry point touches."""</span>
+</span><span id="line-120">    <span class="n">parts</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parts</span>
+</span><span id="line-121">    <span class="k">if</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">:</span>
+</span><span id="line-122">        <span class="k">return</span> <span class="kc">False</span>
+</span><span id="line-123">    <span class="k">return</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"__editable__."</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span>
+</span><span id="line-124">        <span class="n">p</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">METADATA_SUFFIXES</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span>
+</span><span id="line-125">    <span class="p">)</span>
 </span><span id="line-126">
-</span><span id="line-127"><span class="k">def</span><span class="w"> </span><span class="nf">_stat</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="line-128">    <span class="k">try</span><span class="p">:</span>
-</span><span id="line-129">        <span class="n">st</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-</span><span id="line-130">    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-</span><span id="line-131">        <span class="k">return</span> <span class="kc">None</span>
-</span><span id="line-132">    <span class="k">return</span> <span class="p">[</span><span class="n">st</span><span class="o">.</span><span class="n">st_mtime_ns</span><span class="p">,</span> <span class="n">st</span><span class="o">.</span><span class="n">st_size</span><span class="p">]</span>
-</span><span id="line-133">
-</span><span id="line-134">
+</span><span id="line-127">
+</span><span id="line-128"><span class="k">def</span><span class="w"> </span><span class="nf">_under</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">roots</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="line-129">    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">path</span> <span class="o">==</span> <span class="n">r</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">roots</span><span class="p">)</span>
+</span><span id="line-130">
+</span><span id="line-131">
+</span><span id="line-132"><span class="k">def</span><span class="w"> </span><span class="nf">_stat</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-133">    <span class="k">try</span><span class="p">:</span>
+</span><span id="line-134">        <span class="n">st</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</span><span id="line-135">    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+</span><span id="line-136">        <span class="k">return</span> <span class="kc">None</span>
+</span><span id="line-137">    <span class="k">return</span> <span class="p">[</span><span class="n">st</span><span class="o">.</span><span class="n">st_mtime_ns</span><span class="p">,</span> <span class="n">st</span><span class="o">.</span><span class="n">st_size</span><span class="p">]</span>
+</span><span id="line-138">
+</span><span id="line-139">
 <div class="viewcode-block" id="ReadRecorder">
 <a class="viewcode-back" href="../../_autosummary/manimkit.reads.html#manimkit.reads.ReadRecorder">[docs]</a>
-</span><span id="line-135"><span class="k">class</span><span class="w"> </span><span class="nc">ReadRecorder</span><span class="p">:</span>
-</span><span id="line-136"><span class="w">    </span><span class="sd">"""Records the files a process opens for reading and the folders it lists.</span>
-</span><span id="line-137">
-</span><span id="line-138"><span class="sd">    :meth:`install` adds the audit hook (for good: an audit hook cannot be</span>
-</span><span id="line-139"><span class="sd">    removed, so install it in a process that exists to render, as the runner</span>
-</span><span id="line-140"><span class="sd">    does). :meth:`reads` reports them, sorted, as ``{"path", "kind", "stat"}``</span>
-</span><span id="line-141"><span class="sd">    dicts.</span>
-</span><span id="line-142"><span class="sd">    """</span>
-</span><span id="line-143">
-</span><span id="line-144">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="line-145">        <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="line-146">        <span class="bp">self</span><span class="o">.</span><span class="n">dirs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="line-147">        <span class="bp">self</span><span class="o">.</span><span class="n">_local</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">local</span><span class="p">()</span>  <span class="c1"># per thread: a read on another is never lost</span>
-</span><span id="line-148">        <span class="bp">self</span><span class="o">.</span><span class="n">_stopped</span> <span class="o">=</span> <span class="kc">False</span>
-</span><span id="line-149">
-</span><span id="line-150">    <span class="k">def</span><span class="w"> </span><span class="nf">install</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ReadRecorder"</span><span class="p">:</span>
-</span><span id="line-151">        <span class="n">sys</span><span class="o">.</span><span class="n">addaudithook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hook</span><span class="p">)</span>
-</span><span id="line-152">        <span class="k">return</span> <span class="bp">self</span>
-</span><span id="line-153">
-</span><span id="line-154">    <span class="k">def</span><span class="w"> </span><span class="nf">_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="line-155">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stopped</span><span class="p">:</span>
-</span><span id="line-156">            <span class="k">return</span>
-</span><span id="line-157">        <span class="k">if</span> <span class="n">event</span> <span class="o">!=</span> <span class="s2">"open"</span> <span class="ow">and</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">LIST_EVENTS</span> <span class="ow">and</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">C_READ_EVENTS</span><span class="p">:</span>
-</span><span id="line-158">            <span class="k">return</span>
-</span><span id="line-159">        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_local</span><span class="p">,</span> <span class="s2">"busy"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>  <span class="c1"># the hook's own work, re-entering</span>
-</span><span id="line-160">            <span class="k">return</span>
-</span><span id="line-161">        <span class="bp">self</span><span class="o">.</span><span class="n">_local</span><span class="o">.</span><span class="n">busy</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="line-162">        <span class="k">try</span><span class="p">:</span>  <span class="c1"># an exception in an audit hook would fail the scene's own open</span>
-</span><span id="line-163">            <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="s2">"open"</span><span class="p">:</span>
-</span><span id="line-164">                <span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">flags</span> <span class="o">=</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))[:</span><span class="mi">3</span><span class="p">]</span>
-</span><span id="line-165">                <span class="k">if</span> <span class="n">_is_read</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">flags</span><span class="p">):</span>
-</span><span id="line-166">                    <span class="bp">self</span><span class="o">.</span><span class="n">_note</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
-</span><span id="line-167">            <span class="k">elif</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">C_READ_EVENTS</span><span class="p">:</span>
-</span><span id="line-168">                <span class="bp">self</span><span class="o">.</span><span class="n">_note</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
-</span><span id="line-169">            <span class="k">else</span><span class="p">:</span>
-</span><span id="line-170">                <span class="bp">self</span><span class="o">.</span><span class="n">_note</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dirs</span><span class="p">)</span>
-</span><span id="line-171">        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
-</span><span id="line-172">            <span class="k">pass</span>
-</span><span id="line-173">        <span class="k">finally</span><span class="p">:</span>
-</span><span id="line-174">            <span class="bp">self</span><span class="o">.</span><span class="n">_local</span><span class="o">.</span><span class="n">busy</span> <span class="o">=</span> <span class="kc">False</span>
-</span><span id="line-175">
-</span><span id="line-176">    <span class="nd">@staticmethod</span>
-</span><span id="line-177">    <span class="k">def</span><span class="w"> </span><span class="nf">_note</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">into</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="line-178">        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="line-179">            <span class="n">path</span> <span class="o">=</span> <span class="s2">"."</span>
-</span><span id="line-180">        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>  <span class="c1"># a file descriptor: no name to key</span>
-</span><span id="line-181">            <span class="k">return</span>
-</span><span id="line-182">        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fsdecode</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-</span><span id="line-183">        <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s2">":memory:"</span><span class="p">:</span>  <span class="c1"># sqlite's in-memory database</span>
-</span><span id="line-184">            <span class="k">return</span>
-</span><span id="line-185">        <span class="n">path</span> <span class="o">=</span> <span class="n">_source_of</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
-</span><span id="line-186">        <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">into</span><span class="p">:</span>  <span class="c1"># the state at the FIRST read is what was read</span>
-</span><span id="line-187">            <span class="n">into</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">_stat</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-</span><span id="line-188">
+</span><span id="line-140"><span class="k">class</span><span class="w"> </span><span class="nc">ReadRecorder</span><span class="p">:</span>
+</span><span id="line-141"><span class="w">    </span><span class="sd">"""Records the files a process opens for reading and the folders it lists.</span>
+</span><span id="line-142">
+</span><span id="line-143"><span class="sd">    :meth:`install` adds the audit hook (for good: an audit hook cannot be</span>
+</span><span id="line-144"><span class="sd">    removed, so install it in a process that exists to render, as the runner</span>
+</span><span id="line-145"><span class="sd">    does). :meth:`reads` reports them, sorted, as ``{"path", "kind", "stat"}``</span>
+</span><span id="line-146"><span class="sd">    dicts.</span>
+</span><span id="line-147"><span class="sd">    """</span>
+</span><span id="line-148">
+</span><span id="line-149">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-150">        <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="line-151">        <span class="bp">self</span><span class="o">.</span><span class="n">dirs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="line-152">        <span class="bp">self</span><span class="o">.</span><span class="n">_local</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">local</span><span class="p">()</span>  <span class="c1"># per thread: a read on another is never lost</span>
+</span><span id="line-153">        <span class="bp">self</span><span class="o">.</span><span class="n">_stopped</span> <span class="o">=</span> <span class="kc">False</span>
+</span><span id="line-154">
+</span><span id="line-155">    <span class="k">def</span><span class="w"> </span><span class="nf">install</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ReadRecorder"</span><span class="p">:</span>
+</span><span id="line-156">        <span class="n">sys</span><span class="o">.</span><span class="n">addaudithook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hook</span><span class="p">)</span>
+</span><span id="line-157">        <span class="k">return</span> <span class="bp">self</span>
+</span><span id="line-158">
+</span><span id="line-159">    <span class="k">def</span><span class="w"> </span><span class="nf">_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-160">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stopped</span><span class="p">:</span>
+</span><span id="line-161">            <span class="k">return</span>
+</span><span id="line-162">        <span class="k">if</span> <span class="n">event</span> <span class="o">!=</span> <span class="s2">"open"</span> <span class="ow">and</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">LIST_EVENTS</span> <span class="ow">and</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">C_READ_EVENTS</span><span class="p">:</span>
+</span><span id="line-163">            <span class="k">return</span>
+</span><span id="line-164">        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_local</span><span class="p">,</span> <span class="s2">"busy"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>  <span class="c1"># the hook's own work, re-entering</span>
+</span><span id="line-165">            <span class="k">return</span>
+</span><span id="line-166">        <span class="bp">self</span><span class="o">.</span><span class="n">_local</span><span class="o">.</span><span class="n">busy</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="line-167">        <span class="k">try</span><span class="p">:</span>  <span class="c1"># an exception in an audit hook would fail the scene's own open</span>
+</span><span id="line-168">            <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="s2">"open"</span><span class="p">:</span>
+</span><span id="line-169">                <span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">flags</span> <span class="o">=</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))[:</span><span class="mi">3</span><span class="p">]</span>
+</span><span id="line-170">                <span class="k">if</span> <span class="n">_is_read</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">flags</span><span class="p">):</span>
+</span><span id="line-171">                    <span class="bp">self</span><span class="o">.</span><span class="n">_note</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
+</span><span id="line-172">            <span class="k">elif</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">C_READ_EVENTS</span><span class="p">:</span>
+</span><span id="line-173">                <span class="bp">self</span><span class="o">.</span><span class="n">_note</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
+</span><span id="line-174">            <span class="k">else</span><span class="p">:</span>
+</span><span id="line-175">                <span class="bp">self</span><span class="o">.</span><span class="n">_note</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dirs</span><span class="p">)</span>
+</span><span id="line-176">        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+</span><span id="line-177">            <span class="k">pass</span>
+</span><span id="line-178">        <span class="k">finally</span><span class="p">:</span>
+</span><span id="line-179">            <span class="bp">self</span><span class="o">.</span><span class="n">_local</span><span class="o">.</span><span class="n">busy</span> <span class="o">=</span> <span class="kc">False</span>
+</span><span id="line-180">
+</span><span id="line-181">    <span class="nd">@staticmethod</span>
+</span><span id="line-182">    <span class="k">def</span><span class="w"> </span><span class="nf">_note</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">into</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-183">        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-184">            <span class="n">path</span> <span class="o">=</span> <span class="s2">"."</span>
+</span><span id="line-185">        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>  <span class="c1"># a file descriptor: no name to key</span>
+</span><span id="line-186">            <span class="k">return</span>
+</span><span id="line-187">        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fsdecode</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</span><span id="line-188">        <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s2">":memory:"</span><span class="p">:</span>  <span class="c1"># sqlite's in-memory database</span>
+</span><span id="line-189">            <span class="k">return</span>
+</span><span id="line-190">        <span class="n">path</span> <span class="o">=</span> <span class="n">_source_of</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</span><span id="line-191">        <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">into</span><span class="p">:</span>  <span class="c1"># the state at the FIRST read is what was read</span>
+</span><span id="line-192">            <span class="n">into</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">_stat</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</span><span id="line-193">
 <div class="viewcode-block" id="ReadRecorder.reads">
 <a class="viewcode-back" href="../../_autosummary/manimkit.reads.html#manimkit.reads.ReadRecorder.reads">[docs]</a>
-</span><span id="line-189">    <span class="k">def</span><span class="w"> </span><span class="nf">reads</span><span class="p">(</span>
-</span><span id="line-190">        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">installation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="line-191">    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-</span><span id="line-192"><span class="w">        </span><span class="sd">"""What was read, minus the folders in ``exclude`` and (by default) the</span>
-</span><span id="line-193"><span class="sd">        Python installation (:func:`installation_roots`), import artefacts and</span>
-</span><span id="line-194"><span class="sd">        device files. Stops recording: what the report itself reads is not the</span>
-</span><span id="line-195"><span class="sd">        scene's."""</span>
-</span><span id="line-196">        <span class="bp">self</span><span class="o">.</span><span class="n">_stopped</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="line-197">        <span class="n">roots</span> <span class="o">=</span> <span class="p">[</span><span class="n">_norm</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">]</span>
-</span><span id="line-198">        <span class="k">if</span> <span class="n">installation</span><span class="p">:</span>
-</span><span id="line-199">            <span class="n">roots</span> <span class="o">+=</span> <span class="n">installation_roots</span><span class="p">()</span>
-</span><span id="line-200">        <span class="c1"># The import system lists every folder on sys.path to find a module.</span>
-</span><span id="line-201">        <span class="n">import_dirs</span> <span class="o">=</span> <span class="p">{</span><span class="n">_norm</span><span class="p">(</span><span class="n">p</span> <span class="ow">or</span> <span class="s2">"."</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">}</span> <span class="k">if</span> <span class="n">installation</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
-</span><span id="line-202">        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="line-203">        <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">paths</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">"file"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">),</span> <span class="p">(</span><span class="s2">"dir"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dirs</span><span class="p">)):</span>
-</span><span id="line-204">            <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">paths</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span id="line-205">                <span class="n">real</span> <span class="o">=</span> <span class="n">_norm</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-</span><span id="line-206">                <span class="k">if</span> <span class="n">real</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">DEVICE_PREFIXES</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_under</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">roots</span><span class="p">):</span>
-</span><span id="line-207">                    <span class="k">continue</span>
-</span><span id="line-208">                <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"dir"</span> <span class="ow">and</span> <span class="n">real</span> <span class="ow">in</span> <span class="n">import_dirs</span><span class="p">:</span>
-</span><span id="line-209">                    <span class="k">continue</span>
-</span><span id="line-210">                <span class="k">if</span> <span class="n">_is_import_artifact</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-</span><span id="line-211">                    <span class="k">continue</span>
-</span><span id="line-212">                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"path"</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">"kind"</span><span class="p">:</span> <span class="n">kind</span><span class="p">,</span> <span class="s2">"stat"</span><span class="p">:</span> <span class="n">stat</span><span class="p">})</span>
-</span><span id="line-213">        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">"path"</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]))</span></div>
+</span><span id="line-194">    <span class="k">def</span><span class="w"> </span><span class="nf">reads</span><span class="p">(</span>
+</span><span id="line-195">        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">installation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="line-196">    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+</span><span id="line-197"><span class="w">        </span><span class="sd">"""What was read, minus the folders in ``exclude`` and (by default) the</span>
+</span><span id="line-198"><span class="sd">        Python installation (:func:`installation_roots`), import artefacts and</span>
+</span><span id="line-199"><span class="sd">        device files. Stops recording: what the report itself reads is not the</span>
+</span><span id="line-200"><span class="sd">        scene's."""</span>
+</span><span id="line-201">        <span class="bp">self</span><span class="o">.</span><span class="n">_stopped</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="line-202">        <span class="n">roots</span> <span class="o">=</span> <span class="p">[</span><span class="n">_norm</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">]</span>
+</span><span id="line-203">        <span class="k">if</span> <span class="n">installation</span><span class="p">:</span>
+</span><span id="line-204">            <span class="n">roots</span> <span class="o">+=</span> <span class="n">installation_roots</span><span class="p">()</span>
+</span><span id="line-205">        <span class="c1"># The import system lists every folder on sys.path to find a module.</span>
+</span><span id="line-206">        <span class="n">import_dirs</span> <span class="o">=</span> <span class="p">{</span><span class="n">_norm</span><span class="p">(</span><span class="n">p</span> <span class="ow">or</span> <span class="s2">"."</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">}</span> <span class="k">if</span> <span class="n">installation</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+</span><span id="line-207">        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="line-208">        <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">paths</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">"file"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">),</span> <span class="p">(</span><span class="s2">"dir"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dirs</span><span class="p">)):</span>
+</span><span id="line-209">            <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">paths</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="line-210">                <span class="n">real</span> <span class="o">=</span> <span class="n">_norm</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</span><span id="line-211">                <span class="k">if</span> <span class="n">real</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">DEVICE_PREFIXES</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_under</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">roots</span><span class="p">):</span>
+</span><span id="line-212">                    <span class="k">continue</span>
+</span><span id="line-213">                <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"dir"</span> <span class="ow">and</span> <span class="n">real</span> <span class="ow">in</span> <span class="n">import_dirs</span><span class="p">:</span>
+</span><span id="line-214">                    <span class="k">continue</span>
+</span><span id="line-215">                <span class="k">if</span> <span class="n">_is_import_artifact</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+</span><span id="line-216">                    <span class="k">continue</span>
+</span><span id="line-217">                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"path"</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">"kind"</span><span class="p">:</span> <span class="n">kind</span><span class="p">,</span> <span class="s2">"stat"</span><span class="p">:</span> <span class="n">stat</span><span class="p">})</span>
+</span><span id="line-218">        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">"path"</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]))</span></div>
 </div>
 
 </span></code></pre></div>
@@ -405,7 +410,7 @@
 </footer>
     </div>
     
-    <script src="../../_static/documentation_options.js?v=47de8214"></script>
+    <script src="../../_static/documentation_options.js?v=8c5712d9"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>

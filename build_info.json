@@ -1,39 +1,39 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-05T15:31:19Z",
+  "built_at": "2026-10-14T06:18:06Z",
   "package": {
     "name": "manimkit",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "display_name": "manimkit",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "e00f329e06615bb75b6fd2a83f453b476d554140",
-    "short_commit": "e00f329",
+    "commit": "476acced93fd27f9224f27b6a17162ca66c97975",
+    "short_commit": "476acce",
     "branch": "main",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/thorwhalen/manimkit",
-    "commit_url": "https://github.com/thorwhalen/manimkit/commit/e00f329e06615bb75b6fd2a83f453b476d554140",
+    "commit_url": "https://github.com/thorwhalen/manimkit/commit/476acced93fd27f9224f27b6a17162ca66c97975",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "thorwhalen/manimkit",
-    "sha": "e00f329e06615bb75b6fd2a83f453b476d554140",
+    "sha": "476acced93fd27f9224f27b6a17162ca66c97975",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "37333226523",
-    "run_url": "https://github.com/thorwhalen/manimkit/actions/runs/37333226523",
+    "run_id": "38521264769",
+    "run_url": "https://github.com/thorwhalen/manimkit/actions/runs/38521264769",
     "server_url": "https://github.com"
   },
   "tools": {
-    "epythet": "0.2.12",
+    "epythet": "0.2.17",
     "sphinx": "9.1.0",
     "docutils": "0.22.4",
-    "python": "3.12.14"
+    "python": "3.12.15"
   },
   "config": {
     "theme": "auto",
@@ -60,14 +60,16 @@
   },
   "pypi": {
     "checked": true,
-    "latest": "0.0.3",
-    "relation": "same",
+    "latest": "0.0.5",
+    "relation": "behind",
     "error": null
   },
-  "reproduce": "git clone https://github.com/thorwhalen/manimkit && cd manimkit\ngit checkout e00f329e06615bb75b6fd2a83f453b476d554140\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/thorwhalen/manimkit && cd manimkit\ngit checkout 476acced93fd27f9224f27b6a17162ca66c97975\npip install \"epythet==0.2.17\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
-    "aligned": true,
-    "notes": []
+    "aligned": false,
+    "notes": [
+      "The documented version (0.0.4) is behind the latest release on PyPI (0.0.5): `pip install manimkit` gives newer code than these docs describe."
+    ]
   }
 }

@@ -35,7 +35,7 @@ not recorded, or when the render died before reporting.
 * **Type:**
   With `record_reads=True`
 
-### manimkit.render.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None, record_reads=False)
+### manimkit.render.render_check(file, scene=None, , quality='l', n_frames=8, at=(), out_dir=None, probe=True, no_latex=False, lint=True, timeout=600, python=None, record_reads=False, frame_rate=None, pixel_size=None, media_dir=None)
 
 Lint, render `scene` from `file`, sample frames, report.
 
@@ -58,8 +58,22 @@ Lint, render `scene` from `file`, sample frames, report.
     [`RenderReport.reads`](#manimkit.render.RenderReport.reads) ([`manimkit.reads.ReadRecorder`](manimkit.reads.html.md#manimkit.reads.ReadRecorder)), so a
     > caller that caches renders can key the files a scene reads by a
     > computed path.
+  * **frame_rate** ([`float`](https://docs.python.org/3/builtins/functions.html#float) | [`None`](https://docs.python.org/3/builtins/constants.html#None)) – exact output fps, overriding the `quality` preset’s.
+  * **pixel_size** ([`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int)] | [`None`](https://docs.python.org/3/builtins/constants.html#None)) – exact output `(width, height)` in pixels (even numbers,
+    as H.264 needs), overriding the preset’s; the frame’s width follows the
+    aspect, so a square or portrait size is not stretched.
+  * **media_dir** – where manim writes its media, including the per-`play`
+    partial-movie cache (default: `<out_dir>/media`). Point several renders
+    at one folder to keep that cache across them, while each render’s frames
+    and contact sheet still go to its own `out_dir`. Do not share one folder
+    between two renders of the same scene running at the same time, nor between
+    two scene files with the same name and scene class (they write the same movie).
 * **Return type:**
   [`RenderReport`](#manimkit.render.RenderReport)
+
+Linting is split: the cheap checks (syntax, structure, known wrong APIs) run
+here, and the name check, which imports manim, runs in the render’s child
+process, so manim is never imported into the caller.
 
 ### manimkit.render.resolve_scene(file, scene=None)
 
