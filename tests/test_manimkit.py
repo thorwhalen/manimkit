@@ -391,7 +391,12 @@ def test_the_parent_lint_never_imports_manim(tmp_path, monkeypatch):
     scene = tmp_path / "s.py"
     scene.write_text(_SCENE)
     _fake_child(monkeypatch, {"ok": True})
-    monkeypatch.setitem(_sys.modules, "manim", None)  # any import of manim now fails
+    import manimkit.lint as _lint
+
+    def _name_check_in_the_caller(tree):
+        raise AssertionError("the name check (which imports manim) ran in the caller")
+
+    monkeypatch.setattr(_lint, "_undefined_manim_names", _name_check_in_the_caller)
     assert render_check(scene, out_dir=tmp_path / "out").ok
 
 
@@ -416,7 +421,7 @@ def test_overrides_put_exact_values_after_the_preset_and_keep_the_aspect():
         out_dir=Path("/out"),
         frame_height=8.0,
     )
-    keys = list(o)
+    keys = list(o)  # ManimConfig.update applies them in this order: later ones win
     assert keys.index("quality") < keys.index("frame_rate") < keys.index("pixel_width")
     assert o["frame_width"] == pytest.approx(4.5)
     assert o["media_dir"] == str(Path("/out") / "media")
@@ -444,3 +449,15 @@ def test_the_report_shows_the_caller_line():
     text = str(report)
     assert "Create(Circle)  (line 12)" in text
     assert "Circle off the right (line 12)" in text
+
+
+def test_media_dir_expands_the_home_and_fps_may_be_a_fraction(tmp_path, monkeypatch):
+    from fractions import Fraction
+
+    scene = tmp_path / "s.py"
+    scene.write_text(_SCENE)
+    seen = _fake_child(monkeypatch, {"ok": True})
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    render_check(scene, media_dir="~/cache", frame_rate=Fraction(24000, 1001), out_dir=tmp_path / "out")
+    assert seen["media_dir"] == str((tmp_path / "home" / "cache").resolve())
+    assert seen["frame_rate"] == pytest.approx(23.976, abs=1e-3)

@@ -187,14 +187,17 @@ def render_check(
         partial-movie cache (default: ``<out_dir>/media``). Point several renders
         at one folder to keep that cache across them, while each render's frames
         and contact sheet still go to its own ``out_dir``. Do not share one folder
-        between two renders of the same scene running at the same time.
+        between two renders of the same scene running at the same time, nor between
+        two scene files with the same name and scene class (they write the same movie).
 
     Linting is split: the cheap checks (syntax, structure, known wrong APIs) run
     here, and the name check, which imports manim, runs in the render's child
     process, so manim is never imported into the caller.
     """
-    if frame_rate is not None and not frame_rate > 0:
-        raise ValueError(f"frame_rate must be positive, not {frame_rate!r}")
+    if frame_rate is not None:
+        if not frame_rate > 0:
+            raise ValueError(f"frame_rate must be positive, not {frame_rate!r}")
+        frame_rate = float(frame_rate)  # a Fraction (24000/1001) must survive the JSON hand-off
     if pixel_size is not None:
         pixel_size = tuple(pixel_size)
         if (
@@ -240,7 +243,7 @@ def render_check(
         "record_reads": record_reads,
         "frame_rate": frame_rate,
         "pixel_size": list(pixel_size) if pixel_size else None,
-        "media_dir": str(Path(media_dir).resolve()) if media_dir else None,
+        "media_dir": str(Path(media_dir).expanduser().resolve()) if media_dir else None,
         "lint_names": lint,
     }
     with tempfile.NamedTemporaryFile(

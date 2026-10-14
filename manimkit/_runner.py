@@ -426,8 +426,12 @@ def _render_overrides(args: dict, *, out_dir: Path, frame_height: float) -> dict
     """The ``tempconfig`` overrides for a render. Pure.
 
     ``quality`` sets a preset; an exact ``frame_rate`` and ``pixel_size`` then
-    override it (in that order: a later key wins), and ``frame_width`` follows the
-    pixel aspect so a non-16:9 size is not stretched.
+    override it. Order matters: ``ManimConfig.update`` applies these keys (all of
+    them config keys, ``quality`` included) in one pass in dict order, so the later
+    ones win over what the ``quality`` setter set. ``frame_width`` follows the pixel
+    aspect with ``frame_height`` kept (8 by default), since the camera derives its
+    frame from the width and the layout probe reads the config's height; manim's own
+    ``-r`` keeps the width instead, so a portrait render here is 4.5 x 8 units.
 
     >>> o = _render_overrides({"quality": "l", "frame_rate": 24, "pixel_size": [1080, 1080]},
     ...                       out_dir=Path("/r"), frame_height=8.0)
