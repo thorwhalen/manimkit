@@ -39,8 +39,13 @@ report.ok, report.contact_sheet, report.layout_warnings
 
 # a caller that renders for a film: exact fps and size (no resampling afterwards),
 # and manim's per-play cache kept across renders while each render's frames stay apart
-render_check("scene.py", frame_rate=24, pixel_size=(1080, 1920),
-             media_dir="~/.cache/my_app/manim_media", out_dir="renders/shot_03")
+render_check(
+    "scene.py",
+    frame_rate=24,
+    pixel_size=(1080, 1920),
+    media_dir="~/.cache/my_app/manim_media",
+    out_dir="renders/shot_03",
+)
 ```
 
 Your own scenes can join the corpus: `search_examples(query, sources=["curated", "api", "/path/to/my/scenes"])`. A header docstring (first line = title, then `tags:`, `scene:`, `source:` lines, then a description) makes them rank well; without one the file name and code identifiers are still indexed.

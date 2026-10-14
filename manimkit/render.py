@@ -197,12 +197,13 @@ def render_check(
     if frame_rate is not None:
         if not frame_rate > 0:
             raise ValueError(f"frame_rate must be positive, not {frame_rate!r}")
-        frame_rate = float(frame_rate)  # a Fraction (24000/1001) must survive the JSON hand-off
+        frame_rate = float(
+            frame_rate
+        )  # a Fraction (24000/1001) must survive the JSON hand-off
     if pixel_size is not None:
         pixel_size = tuple(pixel_size)
-        if (
-            len(pixel_size) != 2
-            or not all(isinstance(n, int) and n > 0 and n % 2 == 0 for n in pixel_size)
+        if len(pixel_size) != 2 or not all(
+            isinstance(n, int) and n > 0 and n % 2 == 0 for n in pixel_size
         ):
             raise ValueError(
                 f"pixel_size is (width, height) in even positive pixels, not {pixel_size!r}"
@@ -332,7 +333,9 @@ def render_check(
 
 def _merged_lint(issues: list[LintIssue], names: list[dict]) -> list[LintIssue]:
     """The parent's cheap lint plus the child's name check, in line order."""
-    found = set(issues) | {LintIssue(n["line"], n["message"], n.get("kind", "name")) for n in names}
+    found = set(issues) | {
+        LintIssue(n["line"], n["message"], n.get("kind", "name")) for n in names
+    }
     return sorted(found, key=lambda x: (x.line, x.message))
 
 

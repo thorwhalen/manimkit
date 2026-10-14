@@ -777,7 +777,9 @@ def run(args: dict) -> dict:
         spec.loader.exec_module(module)
         scene_cls = getattr(module, args["scene"])
         overrides = _render_overrides(
-            {**args, "file": str(file)}, out_dir=out_dir, frame_height=config.frame_height
+            {**args, "file": str(file)},
+            out_dir=out_dir,
+            frame_height=config.frame_height,
         )
         with tempconfig(overrides):
             scene = scene_cls()
