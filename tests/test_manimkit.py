@@ -336,3 +336,111 @@ def test_render_check_records_a_read_by_a_computed_path(tmp_path, monkeypatch):
     assert not any("site-packages" in str(p) for _, p in paths), paths
     assert not any(Path(p).is_relative_to((tmp_path / "out").resolve()) for _, p in paths)
     assert render_check(f, n_frames=1, out_dir=tmp_path / "out2").reads is None
+
+
+# --------------------------------------------------------------------------- #
+# an's renderer gaps (#1): exact fps/size, caller lines, media_dir, lint in the child.
+# These need no manim: the child process is faked at subprocess.run.
+# --------------------------------------------------------------------------- #
+
+import json as _json
+import subprocess as _subprocess
+import sys as _sys
+
+from manimkit import render as _render
+from manimkit._runner import _render_overrides, _user_line
+from manimkit.render import RenderReport, render_check
+
+_SCENE = "from manim import *\n\nclass S(Scene):\n    def construct(self):\n        self.wait()\n"
+
+
+def _fake_child(monkeypatch, result: dict):
+    """Fake the render's child process; return the args it was handed."""
+    seen = {}
+
+    def fake_run(cmd, **kw):
+        args = _json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
+        seen.update(args)
+        Path(args["result_path"]).write_text(_json.dumps(result), encoding="utf-8")
+        return _subprocess.CompletedProcess(cmd, 0, "", "")
+
+    monkeypatch.setattr(_render.subprocess, "run", fake_run)
+    return seen
+
+
+def test_render_check_hands_the_child_exact_fps_size_media_dir_and_the_name_lint(
+    tmp_path, monkeypatch
+):
+    scene = tmp_path / "s.py"
+    scene.write_text(_SCENE)
+    seen = _fake_child(
+        monkeypatch,
+        {"ok": True, "lint_names": [{"line": 5, "message": "Foo is not a manim name", "kind": "name"}]},
+    )
+    report = render_check(
+        scene, frame_rate=24, pixel_size=(1080, 1920), media_dir=tmp_path / "cache",
+        out_dir=tmp_path / "out",
+    )
+    assert seen["frame_rate"] == 24 and seen["pixel_size"] == [1080, 1920]
+    assert seen["media_dir"] == str((tmp_path / "cache").resolve())
+    assert seen["lint_names"] is True
+    assert report.ok and report.lint == ["line 5: Foo is not a manim name"]
+
+
+def test_the_parent_lint_never_imports_manim(tmp_path, monkeypatch):
+    scene = tmp_path / "s.py"
+    scene.write_text(_SCENE)
+    _fake_child(monkeypatch, {"ok": True})
+    monkeypatch.setitem(_sys.modules, "manim", None)  # any import of manim now fails
+    assert render_check(scene, out_dir=tmp_path / "out").ok
+
+
+@pytest.mark.parametrize(
+    "kwargs, match",
+    [
+        ({"frame_rate": 0}, "frame_rate"),
+        ({"pixel_size": (1081, 1920)}, "even"),
+        ({"pixel_size": (1080,)}, "pixel_size"),
+    ],
+)
+def test_render_check_refuses_impossible_sizes_and_rates(tmp_path, kwargs, match):
+    scene = tmp_path / "s.py"
+    scene.write_text(_SCENE)
+    with pytest.raises(ValueError, match=match):
+        render_check(scene, **kwargs)
+
+
+def test_overrides_put_exact_values_after_the_preset_and_keep_the_aspect():
+    o = _render_overrides(
+        {"quality": "h", "frame_rate": 25, "pixel_size": [720, 1280], "file": "/x/s.py"},
+        out_dir=Path("/out"),
+        frame_height=8.0,
+    )
+    keys = list(o)
+    assert keys.index("quality") < keys.index("frame_rate") < keys.index("pixel_width")
+    assert o["frame_width"] == pytest.approx(4.5)
+    assert o["media_dir"] == str(Path("/out") / "media")
+    assert "frame_rate" not in _render_overrides({}, out_dir=Path("/o"), frame_height=8.0)
+
+
+def test_user_line_is_the_users_call_even_inside_a_helper(tmp_path):
+    user = tmp_path / "scene.py"
+    code = "def helper(probe):\n    return probe()\n\ndef construct(probe):\n    for _ in range(1):\n        return helper(probe)\n"
+    namespace = {}
+    exec(compile(code, str(user), "exec"), namespace)
+    assert namespace["construct"](lambda: _user_line(user)) == 2  # innermost user frame
+    assert _user_line(None) is None
+    assert namespace["construct"](lambda: _user_line(tmp_path / "other.py")) is None
+
+
+def test_the_report_shows_the_caller_line():
+    report = RenderReport(
+        ok=True,
+        file="/x/s.py",
+        scene="S",
+        timeline=[{"t0": 0.0, "t1": 1.0, "what": "Create(Circle)", "line": 12}],
+        layout_warnings=[{"t": 1.0, "kind": "offscreen", "message": "Circle off the right", "line": 12}],
+    )
+    text = str(report)
+    assert "Create(Circle)  (line 12)" in text
+    assert "Circle off the right (line 12)" in text

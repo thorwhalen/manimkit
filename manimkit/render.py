@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from manimkit.corpus import scene_names
-from manimkit.lint import LintIssue, lint_scene
+from manimkit.lint import LintIssue, lint_code
 
 DFLT_QUALITY = "l"
 DFLT_N_FRAMES = 8
@@ -112,12 +112,15 @@ class RenderReport:
         if self.timeline:
             lines.append("timeline:")
             lines += [
-                f"  {s['t0']:6.2f}–{s['t1']:6.2f}s  {s['what']}" for s in self.timeline
+                f"  {s['t0']:6.2f}–{s['t1']:6.2f}s  {s['what']}"
+                + (f"  (line {s['line']})" if s.get("line") else "")
+                for s in self.timeline
             ]
         if self.layout_warnings:
             lines.append("layout warnings:")
             lines += [
                 f"  - t={w['t']:.2f}s [{w['kind']}] {w['message']}"
+                + (f" (line {w['line']})" if w.get("line") else "")
                 for w in self.layout_warnings
             ]
         elif self.ok:
@@ -154,6 +157,9 @@ def render_check(
     timeout: float = DFLT_TIMEOUT,
     python: str | None = None,
     record_reads: bool = False,
+    frame_rate: float | None = None,
+    pixel_size: tuple[int, int] | None = None,
+    media_dir=None,
 ) -> RenderReport:
     """Lint, render ``scene`` from ``file``, sample frames, report.
 
@@ -173,14 +179,40 @@ def render_check(
         :attr:`RenderReport.reads` (:class:`manimkit.reads.ReadRecorder`), so a
         caller that caches renders can key the files a scene reads by a
         computed path.
+    :param frame_rate: exact output fps, overriding the ``quality`` preset's.
+    :param pixel_size: exact output ``(width, height)`` in pixels (even numbers,
+        as H.264 needs), overriding the preset's; the frame's width follows the
+        aspect, so a square or portrait size is not stretched.
+    :param media_dir: where manim writes its media, including the per-``play``
+        partial-movie cache (default: ``<out_dir>/media``). Point several renders
+        at one folder to keep that cache across them, while each render's frames
+        and contact sheet still go to its own ``out_dir``. Do not share one folder
+        between two renders of the same scene running at the same time.
+
+    Linting is split: the cheap checks (syntax, structure, known wrong APIs) run
+    here, and the name check, which imports manim, runs in the render's child
+    process, so manim is never imported into the caller.
     """
+    if frame_rate is not None and not frame_rate > 0:
+        raise ValueError(f"frame_rate must be positive, not {frame_rate!r}")
+    if pixel_size is not None:
+        pixel_size = tuple(pixel_size)
+        if (
+            len(pixel_size) != 2
+            or not all(isinstance(n, int) and n > 0 and n % 2 == 0 for n in pixel_size)
+        ):
+            raise ValueError(
+                f"pixel_size is (width, height) in even positive pixels, not {pixel_size!r}"
+            )
     file = Path(file).resolve()
     if not file.exists():
         raise FileNotFoundError(file)
     scene = resolve_scene(file, scene)
     out_dir = Path(out_dir) if out_dir else file.parent / DFLT_OUT_DIRNAME / file.stem
     out_dir.mkdir(parents=True, exist_ok=True)
-    issues: list[LintIssue] = lint_scene(file) if lint else []
+    issues: list[LintIssue] = (
+        lint_code(file.read_text(encoding="utf-8"), check_names=False) if lint else []
+    )
     blocking = [
         i
         for i in issues
@@ -206,6 +238,10 @@ def render_check(
         "no_latex": no_latex,
         "result_path": str(out_dir / "result.json"),
         "record_reads": record_reads,
+        "frame_rate": frame_rate,
+        "pixel_size": list(pixel_size) if pixel_size else None,
+        "media_dir": str(Path(media_dir).resolve()) if media_dir else None,
+        "lint_names": lint,
     }
     with tempfile.NamedTemporaryFile(
         "w", suffix=".json", delete=False, encoding="utf-8"
@@ -264,6 +300,7 @@ def render_check(
             stderr_tail=_tail(stderr),
         )
     r = json.loads(result_path.read_text(encoding="utf-8"))
+    issues = _merged_lint(issues, r.get("lint_names") or [])
     return RenderReport(
         ok=r.get("ok", False),
         file=str(file),
@@ -288,6 +325,12 @@ def render_check(
         unchanged=previous_hash == source_hash,
         reads=r.get("reads"),
     )
+
+
+def _merged_lint(issues: list[LintIssue], names: list[dict]) -> list[LintIssue]:
+    """The parent's cheap lint plus the child's name check, in line order."""
+    found = set(issues) | {LintIssue(n["line"], n["message"], n.get("kind", "name")) for n in names}
+    return sorted(found, key=lambda x: (x.line, x.message))
 
 
 def _tail(text, n: int = 15) -> str:
